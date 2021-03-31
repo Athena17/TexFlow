@@ -1,0 +1,207 @@
+.head {
+    width: 100%;
+    /*border: 3px solid rgb(255, 77, 100);*/
+    padding:0;
+}
+.logo{
+    border-collapse:collapse;
+    position:relative;
+    margin-left: 10%;
+    margin-top: 4%;
+    padding:0;
+}
+hr {
+    background-color: #91acdf; 
+    color:  #91acdf; 
+    border-width: 0;
+    height: 2px;
+    position: relative;
+}
+.description {
+    position:relative;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1%;
+    margin-bottom: 4%;
+    padding:0;
+}
+.description-label{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color:#00297A;
+    font-style: italic;
+    line-height: 24px;
+}
+.input-text{
+    position:relative;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1%;
+    margin-bottom: 5%;
+    padding:0;
+}
+.label1{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 36px;
+    color:#00297A;
+    font-weight: bold;
+    line-height: 50px;
+    position:relative;
+}
+
+.input-text-area{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    color:#88a5dbaf;
+    position:relative;
+    resize:none; 
+    border: 2px solid #91acdf; 
+    padding: 0;
+    margin:0;
+    white-space: normal;
+    width: 100%;
+    height: 40%;
+}
+.button1{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    background-color:#00297A;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+    width: 100%;
+    height: 7%;
+}
+.features{
+    position:relative;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1%;
+    margin-bottom: 5%;
+    padding:0;
+}
+.feature{
+    height: 10%;
+   /* border: 2px solid #91acdf; */
+   margin-bottom: 3%;
+   margin-top: 3%;
+}
+.feature-with-textarea{
+    height: 20%;
+    /* border: 2px solid #91acdf; */
+    margin-bottom: 3%;
+    margin-top: 3%;
+}
+.feature-description{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color:#00297A; 
+    display: block;
+    width: 100%;
+    height: 20%;
+    line-height: 24px;
+
+}
+.button2{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    background-color:#00297A;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+    float:right;
+    width: 20%;
+    height: 50%;
+    /*margin-right: 5%;*/
+    margin-top: 2%;
+}
+.button3{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    background-color:#00297A;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+    float:left;
+    width: 25%;
+    height: 60%;
+    margin-right: 4%;
+    margin-left: 4%;
+}
+.flowchart-area{
+    position:relative;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top: 1%;
+    margin-bottom: 5%;
+    padding:0;
+}
+.flowchart{
+    position:relative;
+    border:2px solid #91acdf; 
+    width: 100%;
+    height: 80%;
+}
+
+.large-textarea{
+    resize: none;
+    width: 70%;
+    height: 60%;
+    border: 2px solid #91acdf; 
+    margin-top: 2%;
+}
+
+.slider {
+    float:left;
+    width: 60%; 
+    height: 25px;
+    background: #91acdf;
+    outline: none; 
+    -webkit-transition: .2s; 
+    transition: opacity .2s;
+    margin-top: 2.5%;
+    margin-bottom: 1%;
+    margin-left: 0;
+    margin-right: 3%;
+    
+}
+.input-number{
+   /* float:right;*/
+    width: 5%;
+    font-size: 20px;
+    font-weight: bold;
+    color:#00297A; 
+    margin-top: 2%;
+}
+div.vis-network div.vis-edit-mode button.vis-button.vis-edit.vis-edit-mode {
+        color:rgb(13, 13, 112);
+        background-color: white;
+        border-color: white;
+        text-align: center;
+        font-size: 16pt;
+        cursor: pointer
+    }
+    div.vis-network div.vis-edit-mode div.vis-label {
+        font-size: 16pt;
+        color: purple;
+    }
+
+    div.vis-network div.vis-manipulation button.vis-button.vis-add {
+        color:rgb(13, 13, 112);
+        background-color: white;
+        border-color:rgb(13, 13, 112);
+        text-align: center;
+        font-size: 16pt;
+        cursor: pointer
+    }
+
+    div.vis-network div.vis-manipulation div.vis-label {
+        font-size: 16pt;
+        color: black;
+    }
+
+    div.vis-network div.vis-manipulation div.vis-none {
+        font-size: 16pt;
+        color: black;  
+    }
