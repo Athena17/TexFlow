@@ -259,7 +259,7 @@ def summarize(paragraph, summarization_percentage):
         summarization_percentage = 30
     sentence_list = nltk.sent_tokenize(paragraph)
     old_number_sentences = len(sentence_list)
-    print(old_number_sentences)
+    #print(old_number_sentences)
     
     stopwords = nltk.corpus.stopwords.words('english')
     
@@ -287,7 +287,7 @@ def summarize(paragraph, summarization_percentage):
                         
     import heapq
     new_number_sentences = math.ceil((summarization_percentage/100)*old_number_sentences)
-    print(new_number_sentences)
+    #print(new_number_sentences)
     summary_sentences = heapq.nlargest(new_number_sentences, sentence_scores, key=sentence_scores.get)
     good_order = list(filter(lambda x : x in summary_sentences,sentence_list))
     summary = ' '.join(good_order)
@@ -306,7 +306,7 @@ def find_main_words(paragraph):
 
     #Find the most common expressions of up to 3 words
     common_exp = com(doc1)
-    print(common_exp)
+    #print(common_exp)
     
     paragraph_deref = paragraph
 

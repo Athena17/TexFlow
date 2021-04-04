@@ -353,18 +353,23 @@
         recoverInput.innerHTML = words["0"];
     }
     let data3 = {}
+    let in_nodes = [];
+    let in_edges = [];
+
     if(transaction["time"] <= 2){
-        var data = JSON.parse("{{data1|escapejs}}"); 
-        in_nodes = [];
-        for (var x in data) {
-            if (x!= "0") {
-                in_nodes.push(x);
+        var data1 = JSON.parse("{{data1|escapejs}}"); 
+        
+        for (var x in data1) {
+            if (x != "0") {
+                var node = new Object();
+                node.id = x;
+                node.label = data1[x];
+                in_nodes.push(node);
             }
         }
 
         data2 = JSON.parse("{{data2|escapejs}}"); 
         data3 = JSON.parse("{{data3|escapejs}}"); 
-        in_edges = [];
 
         for (var x in data2) {
             var edge = new Object();
@@ -375,7 +380,7 @@
             in_edges.push(edge);
         }
         var recoverInput = document.getElementById('input-text');
-        recoverInput.innerHTML = data["0"];
+        recoverInput.innerHTML = data1["0"];
     }
 
     var graph = {};
@@ -383,10 +388,13 @@
     var nodes = [];
     paths = {};
     parentPath = {};
-    for (i = 0; i <in_nodes.length; i++){
+    
+    
+    for (i = 0; i < in_nodes.length; i++){
         var node = new Object();
-        node.id = in_nodes[i];
-        node.label = in_nodes[i];
+        node.id = in_nodes[i].id;
+        node.label = in_nodes[i].label;
+
         nodes.push(node);
     }
     nodes = new vis.DataSet(nodes);
@@ -487,15 +495,16 @@
     },
                 
         edges: {
-            width: 0.5,
-            length: 200,
+            width: 1.5,
+            length: 300,
             style: 'line',
             color: {
-                color: '#6973ff',
-                highlight: 'grey'
+                color: '#6ebfff', 
+                highlight: '#0061fc'
             },
             font: {
-                size: 10
+                size: 12,
+                color: '#00297A',
             },
             arrows:{
                 to: {
@@ -507,10 +516,24 @@
         },
         nodes: {
             shape: 'box',
-            fontColor: 'black',
+            color: {
+                background: '#c4e5ff',
+                border: '#0892ff',
+                highlight: {
+                    border: '#0061fc',
+                    background: '#80c7ff', //'#ffadbe',
+                }
+            },
+            borderWidth: 2, 
             font: {
-                multi: true
-            }
+                size: 16,
+                multi: true,
+                align: 'center',
+                color: '#00297A',
+            },
+            margin: { top: 10, right: 10, bottom: 10, left: 10 },
+            heightConstraint: { minimum: 40 },
+            widthConstraint: { minimum: 60 }
         },
     };
 
@@ -540,34 +563,34 @@
 
         parent = {}
         for(i=0; i < in_nodes.length; i++){
-            if (isLeaf(in_nodes[i])) {
-                parent[in_nodes[i]] = (graph[in_nodes[i]])[0];
+            if (isLeaf(in_nodes[i].id)) {
+                parent[in_nodes[i].id] = (graph[in_nodes[i].id])[0];
             }
             else {
-                parent[in_nodes[i]] = in_nodes[i];
+                parent[in_nodes[i].id] = in_nodes[i].id;
             } 
         }
         
         bullets = {}
         for (i = 0; i < in_nodes.length; i++) {
-            if (!(parent[in_nodes[i]] in bullets)){
-                bullets[parent[in_nodes[i]]] = "";
+            if (!(parent[in_nodes[i].id] in bullets)){
+                bullets[parent[in_nodes[i].id]] = "";
             }
 
-            if ( parent[in_nodes[i]] !== in_nodes[i]){
-                k1 = parent[in_nodes[i]] + "_" + in_nodes[i];
-                k2 = in_nodes[i] + "_" + parent[in_nodes[i]];
+            if ( parent[in_nodes[i].id] !== in_nodes[i].id){
+                k1 = parent[in_nodes[i].id] + "_" + in_nodes[i].id;
+                k2 = in_nodes[i].id + "_" + parent[in_nodes[i].id];
                 
                 line = ""
                 if (k1 in relations){
-                    line += ( parent[in_nodes[i]]+ " " + relations[k1] + " " + in_nodes[i]) + "\n";
+                    line += ( parent[in_nodes[i].id]+ " " + relations[k1] + " " + in_nodes[i].id) + "\n";
                 }
 
                 if (k2 in relations){
-                    line += ( in_nodes[i] + " " + relations[k2] + " " + parent[in_nodes[i]]) + "\n";
+                    line += ( in_nodes[i].id + " " + relations[k2] + " " + parent[in_nodes[i].id]) + "\n";
                 }
                 
-                bullets[parent[in_nodes[i]]] = bullets[parent[in_nodes[i]]] + line;
+                bullets[parent[in_nodes[i].id]] = bullets[parent[in_nodes[i].id]] + line;
                 
             }
             
@@ -576,16 +599,16 @@
 
             clusterOptionsByData = {
                 joinCondition: function(childOptions){
-                    return parent[childOptions.id] === in_nodes[i]; 
+                    return parent[childOptions.id] === in_nodes[i].id; 
                 },
                 
                 clusterNodeProperties: {
-                    id: "Cluster:\n"+ in_nodes[i],
+                    id: "Cluster:\n"+ in_nodes[i].label,
                     borderWidth: 2,
                     shape: "box",
                     font: {multi: "html", size: 14},
                     label: 
-                        "<b>" + parent[in_nodes[i]] + "</b>" + "\n\n" + bullets[parent[in_nodes[i]]],
+                        "<b>" + parent[in_nodes[i].id] + "</b>" + "\n\n" + bullets[parent[in_nodes[i].id]],
                     font: { color: "#eb2f87" }
                 },
             }
@@ -598,7 +621,7 @@
     mergeLeavesButton.onclick = function() {
         leavesCount = 0
         for(i=0; i < in_nodes.length; i++){
-            if (isLeaf(in_nodes[i])){
+            if (isLeaf(in_nodes[i].id)){
                 leavesCount++;
             }
         }
@@ -628,10 +651,12 @@
                 nodeFromSel = network.body.edges[edgeId].options.from.toString();
                 nodeToSel = network.body.edges[edgeId].options.to.toString();
 
-                newColor = '#6973ff';
-                edges.update({id: edgeId, color:{color:newColor}, font: { strokeWidth: 0}});
-                nodes.update({id: nodeFromSel, color:{border:newColor}, font: { strokeWidth: 0}});
-                nodes.update({id: nodeToSel, color:{border:newColor}, font: { strokeWidth: 0}});
+                newColor = '#6ebfff';
+                newFontColor = '#00297A';
+                newBackColor = '#c4e5ff';
+                edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor}});
+                nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
+                nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
 
 
                 for (i = 0 ; i < paths[parPath].length; i++) {
@@ -645,9 +670,9 @@
                     } 
 
                     else {
-                        edges.update({id:edge, color:{color:newColor}, font: { strokeWidth: 0}});
-                        nodes.update({id: nodeFrom, color:{border:newColor}, font: { strokeWidth: 0}});
-                        nodes.update({id: nodeTo, color:{border:newColor}, font: { strokeWidth: 0}});
+                        edges.update({id:edge, color:{color:newColor}, font: {  color: newFontColor}});
+                        nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: {  color: newFontColor}});
+                        nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: {  color: newFontColor}});
                     }
                 
                 }
@@ -678,22 +703,16 @@
             nodeFromSel = network.body.edges[edgeId].options.from.toString();
             nodeToSel = network.body.edges[edgeId].options.to.toString();
 
-            newColor = '#eb69ff'
+            newColor = '#c400b4'; //'#ff667d'; //'#eb69ff'
+            newFontColor = '#8c0081';
+            newBackColor = '#ffc7fb';
             if(network.body.edges[edgeId].options.color.color === newColor) {
                 return;
-                newColor = '#6973ff';
             } 
             
-            if (newColor === '#eb69ff') {
-                edges.update({id: edgeId, color:{color:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-                nodes.update({id: nodeFromSel, color:{border:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-                nodes.update({id: nodeToSel, color:{border:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-            }
-            else {
-                edges.update({id: edgeId, color:{color:newColor}, font: { strokeWidth: 0}});
-                nodes.update({id: nodeFromSel, color:{border:newColor}, font: { strokeWidth: 0}});
-                nodes.update({id: nodeToSel, color:{border:newColor}, font: { strokeWidth: 0}});
-            }
+            edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor }});
+            nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor  }});
+            nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: {color: newFontColor  }});
 
             for (i = 0 ; i < paths[parPath].length; i++) {
                 edge = (paths[parPath])[i];
@@ -705,16 +724,9 @@
                     continue;
                 } 
 
-                if (newColor === '#eb69ff') {
-                    edges.update({id: edge, color:{color:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-                    nodes.update({id: nodeFrom, color:{border:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-                    nodes.update({id: nodeTo, color:{border:newColor}, font: { strokeWidth: 1, strokeColor: newColor }});
-                }
-                else {
-                    edges.update({id:edge, color:{color:newColor}, font: { strokeWidth: 0}});
-                    nodes.update({id: nodeFrom, color:{border:newColor}, font: { strokeWidth: 0}});
-                    nodes.update({id: nodeTo, color:{border:newColor}, font: { strokeWidth: 0}});
-                }
+                edges.update({id: edge, color:{color:newColor}, font: { color: newFontColor}});
+                nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: { color: newFontColor }});
+                nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
             
             }
         }
