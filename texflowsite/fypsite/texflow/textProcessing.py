@@ -374,7 +374,7 @@ def run_example(paragraph, main_words):
 
     #Find the most common expressions of up to 3 words
     common_exp = com(doc1)
-    print(common_exp)
+    #print(common_exp)
 
 
     #if(summarization==True):

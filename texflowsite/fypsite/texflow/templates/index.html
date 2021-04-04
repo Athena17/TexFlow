@@ -80,7 +80,8 @@
                 <form action = "" method="POST">
                     <textarea id= "entities-list" name="entities-list" class= "large-textarea" type="text"> </textarea>
                     <textarea id = "hidden-input" name="hidden-input" style="display:none;" type="text"></textarea>
-                    <input type = "submit" class = "button2" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
+                    <input type = "submit" class = "button4" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
+                    <button class = "button4" id = "revert-select-entities"> Revert </button>
                 </form>
             </div>
             <hr>    
@@ -90,15 +91,20 @@
                     an edge, select the edge and click on:
                 </label> <br>
                 <textarea readonly class= "large-textarea"> </textarea>
-                <button class = "button2" id = "get-full-relation"> Get Full Relation </button>
+                <button class = "button4" id = "get-full-relation"> Get Full Relation </button>
+                <button class = "button4" id = "revert-get-full-relation"> Revert </button>
+                <br>
+                <br>
             </div>
             <hr>
             <div class = "feature-with-textarea">
                 <label class = "feature-description"> 
                     To highlight and print all paths between 2 entities, select them and click on:
                 </label> <br>
-                <textarea readonly class= "large-textarea"> </textarea>
-                <button class = "button2" id = "get-all-paths"> Get All Paths </button>
+                <textarea readonly id = "get-all-relations-textarea" class= "large-textarea"> </textarea>
+                <button class = "button4" id = "get-all-paths"> Get All Paths </button>
+                <button class = "button4" id = "revert-get-all-paths"> Revert </button>
+
             </div>
             <hr>
         </div>
@@ -161,7 +167,7 @@
     .input-text-area{
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
-        color:#88a5dbaf;
+        color: #3167cc;
         position:relative;
         resize:none; 
         border: 2px solid #91acdf; 
@@ -170,6 +176,7 @@
         white-space: normal;
         width: 100%;
         height: 40%;
+        line-height: 24px;
     }
     .button1{
         font-family: Arial, Helvetica, sans-serif;
@@ -199,7 +206,7 @@
     .feature-with-textarea{
         height: 20%;
         /* border: 2px solid #91acdf; */
-        margin-bottom: 3%;
+        margin-bottom: 8%;
         margin-top: 3%;
     }
     .feature-description{
@@ -256,6 +263,28 @@
         margin-left: 4%;
         cursor:pointer;
     }
+    .button4:active{
+        background-color:#2358c2;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+    }
+    .button4{
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        background-color:#00297A;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+        float:top;
+        width: 20%;
+        height: 30%;
+        margin-top: 2%;
+        margin-bottom: 2%;
+        margin-right: 10%;
+        margin-left: 10%;
+        cursor:pointer;
+    }
+
     .flowchart-area{
         position:relative;
         margin-left: 10%;
@@ -273,12 +302,18 @@
 
     .large-textarea{
         resize: none;
-        width: 70%;
+        width: 80%;
         height: 60%;
         border: 2px solid #91acdf; 
         margin-top: 2%;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        line-height: 24px;
+        color:#3167cc;
+        padding: 0;
+        margin:0;
     }
-
+ 
     .slider {
         float:left;
         width: 60%; 
@@ -475,7 +510,7 @@
                 callback(data);
             }
         },
-        
+        interaction: {multiselect: true},
         layout: {
             randomSeed: undefined,
             improvedLayout:true,
@@ -632,12 +667,21 @@
 
         if (param.nodes.length === 1) {
             if (network.isCluster(param.nodes[0]) === true) {
-                network.openCluster(param.nodes[0]);
+               network.openCluster(param.nodes[0]);
             }
         }
-    });  
-    selectedEdge = "";
+        else if(param.nodes.length === 2){
+            selectedNodes.push(param.nodes[0]);
+            selectedNodes.push(param.nodes[1]);
+        }
+    });
+    network.on("deselectNode", function(param){
 
+        selectedNodes = [];
+    });
+
+    selectedEdge = "";
+    selectedNodes = [];
     network.on("selectEdge", function(param){
         if (param.edges.length === 1) {
             edgeId = param.edges[0];
@@ -692,6 +736,12 @@
         network.setOptions( { physics: true } );
         return;
     }
+    
+    changedNodes1 = [];
+    changedEdges1 = [];
+
+    changedNodes2 = [];
+    changedEdges2 = [];
 
     let getFullRealtionButton = document.getElementById("get-full-relation");
     getFullRealtionButton.onclick = function(){
@@ -703,6 +753,9 @@
             nodeFromSel = network.body.edges[edgeId].options.from.toString();
             nodeToSel = network.body.edges[edgeId].options.to.toString();
 
+            if (network.isCluster(nodeFromSel) || network.isCluster(nodeToSel)){
+                return;
+            }
             newColor = '#c400b4'; //'#ff667d'; //'#eb69ff'
             newFontColor = '#8c0081';
             newBackColor = '#ffc7fb';
@@ -711,8 +764,13 @@
             } 
             
             edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor }});
+            changedEdges1.push(edgeId);
+
             nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor  }});
+            changedNodes1.push(nodeFromSel);
+
             nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: {color: newFontColor  }});
+            changedNodes1.push(nodeToSel);
 
             for (i = 0 ; i < paths[parPath].length; i++) {
                 edge = (paths[parPath])[i];
@@ -725,11 +783,168 @@
                 } 
 
                 edges.update({id: edge, color:{color:newColor}, font: { color: newFontColor}});
+                changedEdges1.push(edge);
+
                 nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: { color: newFontColor }});
+                changedNodes1.push(nodeFrom);
+
                 nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
-            
+                changedNodes1.push(nodeTo);
             }
         }
     }
 
+    let getAllRealtionsButton = document.getElementById("get-all-paths");
+    getAllRealtionsButton.onclick = function(){
+        if (selectedNodes.length != 2){
+            alert("Please select exactly 2 entities");
+            return;
+        }
+        let getAllRelationsTextArea = document.getElementById("get-all-relations-textarea");
+        getAllRelationsTextArea.innerHTML = "Below are relations between *" + selectedNodes[0] + "* and *" + selectedNodes[1]+ "*:\n";
+        allPaths = findNonIntersectingPaths(selectedNodes[0], selectedNodes[1]);
+        for (i = 1; i <= allPaths.length; i++){
+            getAllRelationsTextArea.innerHTML += ("PATH " + i.toString() + ": \n" + allPaths[i-1] + "\n");
+        }
+    }
+
+    function getRandomColor() {
+        var letters = '0123456789ABCDEF';
+        var color = '#';
+        for (var i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+    
+    findNonIntersectingPaths = function(node1, node2){
+
+        newColor = '#c400b4';
+        newFontColor = '#8c0081';
+        newBackColor = '#ffc7fb';
+        nodes.update({id: node1, color:{border: newColor, background: newBackColor}, font: { color: newFontColor, bold:true }});
+        nodes.update({id: node2, color:{border: newColor,  background: newBackColor}, font: { color: newFontColor, bold:true}});
+        
+        changedNodes2.push(node1);
+        changedNodes2.push(node2);
+
+        path = []; 
+        parentNode = {};
+        takenEdges = {};
+        count = 0;
+        while(true) {
+            count += 1;
+
+            newColor = getRandomColor();
+            
+            let bfsQueue = []
+            startOfQueue = 0;
+            bfsQueue.push(node1);
+            parentNode[node1] = ["-1", "-1"];
+            
+            while(startOfQueue != bfsQueue.length){
+                
+                nodeToProcess = bfsQueue[startOfQueue];
+                connectedEdges = network.getConnectedEdges(nodeToProcess);
+                
+                for (i = 0; i < connectedEdges.length; i++) {
+                    if (connectedEdges[i] in takenEdges){
+                        continue;
+                    }
+                    edgeId = connectedEdges[i];
+                    nodeFrom = network.body.edges[edgeId].options.from.toString();
+                    nodeTo = network.body.edges[edgeId].options.to.toString();
+                    
+                    childNode = nodeFrom; 
+                    if (nodeFrom.localeCompare(nodeToProcess) == 0){ // equal
+                        childNode = nodeTo;
+                    }
+
+                    if (!(childNode in parentNode)){ // check if childNode is a newly discovered node
+                        parentNode[childNode] = [nodeToProcess, edgeId];
+                        bfsQueue.push(childNode); // add to queue
+                        if (childNode.localeCompare(node2) == 0){ // if we reach node2 we break
+                            break;
+                        }
+                    }
+                }
+                startOfQueue += 1; // pop element
+            }
+
+            reached = (node2 in parentNode);
+            if (!reached) {
+                break;
+            }
+
+            current = node2;
+            pathToPrint = [];
+            pathNodes = {};
+
+            while (current.localeCompare(node1) != 0){
+ 
+                nodeFrom = network.body.edges[parentNode[current][1]].options.from.toString();
+                nodeTo = network.body.edges[parentNode[current][1]].options.to.toString();
+                edgeLabel = network.body.edges[parentNode[current][1]].options.label.toString();
+            
+                pathNodes[nodeTo] = "0";
+                pathNodes[nodeFrom] = "0";
+                takenEdges[parentNode[current][1]] = "0";
+
+                edges.update({id: parentNode[current][1], color:{color: newColor}, font: { color: newColor}});
+                changedEdges2.push(parentNode[current][1]);
+
+                if (nodeFrom.localeCompare(node1) != 0 && nodeFrom.localeCompare(node2) != 0) {
+                    nodes.update({id: nodeFrom, color:{border:newColor}, font: { color: newColor }});
+                    changedNodes2.push(nodeFrom);
+                }
+                if (nodeTo.localeCompare(node1) != 0 && nodeTo.localeCompare(node2) != 0) {
+                    nodes.update({id: nodeTo, color:{border:newColor}, font: { color: newColor}});
+                    changedNodes2.push(nodeTo);
+                }
+            
+                pathToPrint.push(nodeFrom + " " + edgeLabel + " " + nodeTo + "\n");
+                current = parentNode[current][0];
+            }
+
+            for (node in parentNode) {
+                if( !(node in pathNodes) || node == node2){
+                    delete parentNode[node];
+                }
+            }
+
+            pathToPrintStr = ""
+            for (i = pathToPrint.length-1; i >=0;  i--){
+                pathToPrintStr += pathToPrint[i];
+            }
+            
+            path.push(pathToPrintStr);
+            
+        }
+
+        return path;
+    }
+
+    let revertGetAllRelationsButton = document.getElementById("revert-get-all-paths");
+    revertGetAllRelationsButton.onclick = function(){
+        revertToOriginalColors(changedNodes2, changedEdges2); 
+    }
+    
+    let revertGetFullRelationButton = document.getElementById("revert-get-full-relation");
+    revertGetFullRelationButton.onclick = function(){
+        revertToOriginalColors(changedNodes1, changedEdges1); 
+    }
+
+    revertToOriginalColors = function(nodesList, edgesList){
+        originalColor = '#6ebfff';
+        originalFontColor = '#00297A';
+        originalBackColor = '#c4e5ff';
+                
+        for (i = 0; i < nodesList.length; i++){
+            nodes.update({id: nodesList[i], color:{border:originalColor, background: originalBackColor}, font: { color: originalFontColor, bold: false}});
+        }
+
+        for (i = 0; i < edgesList.length; i++){
+            edges.update({id: edgesList[i], color:{color:originalColor}, font: { color: originalFontColor}});
+        }
+    }
 </script>
