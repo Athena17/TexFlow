@@ -22,7 +22,7 @@ hr {
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 1%;
-    margin-bottom: 4%;
+    margin-bottom: 3%;
     padding:0;
 }
 .description-label{
@@ -37,7 +37,7 @@ hr {
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 1%;
-    margin-bottom: 5%;
+    margin-bottom: 3%;
     padding:0;
 }
 .label1{
@@ -52,7 +52,7 @@ hr {
 .input-text-area{
     font-family: Arial, Helvetica, sans-serif;
     font-size: 14px;
-    color:#88a5dbaf;
+    color: #3167cc;
     position:relative;
     resize:none; 
     border: 2px solid #91acdf; 
@@ -61,6 +61,7 @@ hr {
     white-space: normal;
     width: 100%;
     height: 40%;
+    line-height: 24px;
 }
 .button1{
     font-family: Arial, Helvetica, sans-serif;
@@ -71,34 +72,52 @@ hr {
     border: 2px solid #91acdf; 
     width: 100%;
     height: 7%;
+    cursor:pointer;
 }
+.label-button1{
+    display: inline-block;
+    width: 100%;
+    height: 7%;
+    cursor:pointer;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    line-height: 48px;
+    font-weight: bold;
+    background-color:#00297A;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+}
+
 .features{
     position:relative;
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 1%;
-    margin-bottom: 5%;
+    margin-bottom: 3%;
     padding:0;
 }
 .feature{
-    height: 10%;
+    height: 12%;
    /* border: 2px solid #91acdf; */
    margin-bottom: 3%;
    margin-top: 3%;
 }
-.feature-with-textarea{
-    height: 20%;
-    /* border: 2px solid #91acdf; */
-    margin-bottom: 3%;
-    margin-top: 3%;
+
+.small-feature{
+    height: 6%;
+   /* border: 2px solid #91acdf; */
+   margin-bottom: 2.5%;
+   margin-top: 1%;
 }
+
 .feature-description{
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     font-weight: bold;
     color:#00297A; 
     display: block;
-    width: 100%;
+    width: 70%;
     height: 20%;
     line-height: 24px;
 
@@ -115,10 +134,48 @@ hr {
     height: 50%;
     /*margin-right: 5%;*/
     margin-top: 2%;
+    cursor:pointer;
+}
+.button2:active{
+    background-color:#2358c2;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+}
+.button2-small-feature{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: bold;
+    background-color:#00297A;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+    float:right;
+    width: 20%;
+    height: 100%;
+    cursor:pointer;
+}
+.button2-small-feature:active{
+    background-color:#2358c2;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+}
+.button1:active{
+    background-color:#2358c2;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+}
+.button3:active{
+    background-color:#2358c2;
+    color:#91acdf; 
+    border: 2px solid #91acdf; 
+}
+.button3:disabled{
+    background-color:#00297a91;
+    color:#91acdf; 
+    border: 2px solid #4a7cda; 
 }
 .button3{
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
     background-color:#00297A;
     color:#91acdf; 
@@ -127,14 +184,17 @@ hr {
     width: 25%;
     height: 60%;
     margin-right: 4%;
+    margin-bottom: 1%;
     margin-left: 4%;
+    cursor:pointer;
 }
+
 .flowchart-area{
     position:relative;
     margin-left: 10%;
     margin-right: 10%;
     margin-top: 1%;
-    margin-bottom: 5%;
+    margin-bottom: 1%;
     padding:0;
 }
 .flowchart{
@@ -146,10 +206,14 @@ hr {
 
 .large-textarea{
     resize: none;
-    width: 70%;
-    height: 60%;
+    width: 60%;
+    height: 50%;
     border: 2px solid #91acdf; 
     margin-top: 2%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    line-height: 24px;
+    color:#3167cc;
 }
 
 .slider {
