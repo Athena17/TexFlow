@@ -31,7 +31,8 @@
                 name="input-text" cols="60" rows= "15" type="text" required= "required";>
                 Enter your text here.
                 </textarea>
-                <button type = "button" class = "button1" id = "import-from-file"> Import From File </button>
+                <input type = "file" hidden class = "button1" id = "import-from-file" name = "Import From File">
+                <label for = "import-from-file" class = "label-button1"> Import from a file </label> 
             </div>
 
             <div class = "features">
@@ -189,6 +190,21 @@
         height: 7%;
         cursor:pointer;
     }
+    .label-button1{
+        display: inline-block;
+        width: 100%;
+        height: 7%;
+        cursor:pointer;
+        text-align: center;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        line-height: 48px;
+        font-weight: bold;
+        background-color:#00297A;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+    }
+
     .features{
         position:relative;
         margin-left: 10%;
@@ -370,6 +386,15 @@
 </style> 
 
 <script> 
+    
+    document.getElementById('import-from-file').addEventListener('change', function () {
+        var fr = new FileReader();
+        fr.onload = function () {
+            document.getElementById('input-text').textContent = this.result;
+        };
+        fr.readAsText(this.files[0]);
+    });
+
     var transaction = JSON.parse("{{general|escapejs}}");
     if(transaction["time"] == 1){
         var words = JSON.parse("{{mainwords|escapejs}}");
@@ -946,5 +971,19 @@
         for (i = 0; i < edgesList.length; i++){
             edges.update({id: edgesList[i], color:{color:originalColor}, font: { color: originalFontColor}});
         }
+    }
+
+    let saveAsImageButton = document.getElementById("save-as-image");
+    saveAsImageButton.onclick = function() {
+        var flowchartCanvas = document.getElementsByTagName('canvas')[0];
+        flowchartCanvas.toBlob(function(blob) {
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.download = "flowchart.png";
+            a.href = window.URL.createObjectURL(blob);
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+        return;
     }
 </script>
