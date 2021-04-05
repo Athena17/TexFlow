@@ -36,11 +36,12 @@
             </div>
 
             <div class = "features">
-                <div class = "feature">
+                
+                <div class = "small-feature">
                     <label class = "feature-description"> 
-                        For a brief graphical entity-relation representation of the text:
+                        For a brief graphical entity-relation representation of the text.
                     </label>
-                    <input type = "submit" name = "quick-and-brief" class = "button2" id = "quick-and-brief" value = "Quick & Brief">
+                    <input type = "submit" name = "quick-and-brief" class = "button2-small-feature" id = "quick-and-brief" value = "Quick & Brief">
                 </div>
                 
                 <hr>
@@ -49,13 +50,27 @@
                     <label class = "feature-description"> 
                         For a graphical entity-relation representation of the text with a specified 
                         percentage of the text to be represented in the flowchart, 
-                        specify or drag the slider below to specify the desired percentage and click on the button.
+                        specify or drag the slider below to specify the desired percentage.
                     </label> <br>
                     <input id="amount" name= "amount" type="number" value="50" min="30" max="100" step = "1" class = "input-number" oninput="rangeInput.value=amount.value" />
                     <input  id="rangeInput" name= "rangeInput" type="range" min="30" max="100" step = "1" class = "slider" oninput="amount.value=rangeInput.value" />
                     <input type ="submit" name = "generate-flowchart" class = "button2" id = "generate-flowchart" value = "Generate Flowchart">
                 </div>
+                
                 <hr>
+
+                <div class = "feature">
+                    <label class = "feature-description"> 
+                        If you're interested in relations between specific entities in the flowchart, 
+                        specify these entities below (each on a line). If you already generated a flowchart, 
+                        the textarea below contains suggested entities.
+                    </label> <br>
+                        <textarea id= "entities-list" name="entities-list" class= "large-textarea" type="text"> </textarea>
+                        <textarea id = "hidden-input" name="hidden-input" style="display:none;" type="text"></textarea>
+                        <input type = "submit" class = "button2" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
+                </div>
+                <hr> 
+
             </div>
         </form>
 
@@ -67,49 +82,24 @@
 
         <div class = "features">
             <div class = "feature">
-                <button class = "button3" id="disable-physics"> Disable Physics</button>
                 <button class = "button3" id="enable-physics"> Enable Physics</button>
+                <button class = "button3" id="disable-physics"> Disable Physics</button>
                 <button class = "button3" id="merge-leaves"> Merge Leaves </button>
-            </div>
-            <hr>
-            <div class = "feature-with-textarea">
-                <label class = "feature-description"> 
-                    To modify the entities in the flowchart, 
-                    add or remove entities from the list below (keep them seperated by ',').
-                    Then click on the "Submit Entities" button.
-                </label> <br>
-                <form action = "" method="POST">
-                    <textarea id= "entities-list" name="entities-list" class= "large-textarea" type="text"> </textarea>
-                    <textarea id = "hidden-input" name="hidden-input" style="display:none;" type="text"></textarea>
-                    <input type = "submit" class = "button4" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
-                    <button class = "button4" id = "revert-select-entities"> Revert </button>
-                </form>
-            </div>
-            <hr>    
-            <div class = "feature-with-textarea">
-                <label class = "feature-description"> 
-                    To highlight and print the path (representing the full relation) corresponding to 
+                
+                <!--
+                    To highlight the path (representing the full relation) corresponding to 
                     an edge, select the edge and click on:
-                </label> <br>
-                <textarea readonly class= "large-textarea"> </textarea>
-                <button class = "button4" id = "get-full-relation"> Get Full Relation </button>
-                <button class = "button4" id = "revert-get-full-relation"> Revert </button>
-                <br>
-                <br>
-            </div>
-            <hr>
-            <div class = "feature-with-textarea">
-                <label class = "feature-description"> 
+                -->
+                <button class = "button3" id = "get-full-relation"> Highlight Full Path For Selcted Edge </button>
+                
+                <!--
                     To highlight and print all paths between 2 entities, select them and click on:
-                </label> <br>
-                <textarea readonly id = "get-all-relations-textarea" class= "large-textarea"> </textarea>
-                <button class = "button4" id = "get-all-paths"> Get All Paths </button>
-                <button class = "button4" id = "revert-get-all-paths"> Revert </button>
-
+                -->
+                <button class = "button3" id = "get-paths"> Highlight Non-Intersecting Paths Between 2 Selected Nodes </button>
+                <button class = "button3" id = "revert"> Revert To Original Colors </button>
             </div>
-            <hr>
+            
         </div>
-    </div>
 </body>
 </html>
 
@@ -138,7 +128,7 @@
         margin-left: 10%;
         margin-right: 10%;
         margin-top: 1%;
-        margin-bottom: 4%;
+        margin-bottom: 3%;
         padding:0;
     }
     .description-label{
@@ -153,7 +143,7 @@
         margin-left: 10%;
         margin-right: 10%;
         margin-top: 1%;
-        margin-bottom: 5%;
+        margin-bottom: 3%;
         padding:0;
     }
     .label1{
@@ -164,7 +154,6 @@
         line-height: 50px;
         position:relative;
     }
-
     .input-text-area{
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
@@ -204,26 +193,25 @@
         color:#91acdf; 
         border: 2px solid #91acdf; 
     }
-
     .features{
         position:relative;
         margin-left: 10%;
         margin-right: 10%;
         margin-top: 1%;
-        margin-bottom: 5%;
+        margin-bottom: 3%;
         padding:0;
     }
     .feature{
-        height: 10%;
+        height: 12%;
        /* border: 2px solid #91acdf; */
        margin-bottom: 3%;
        margin-top: 3%;
     }
-    .feature-with-textarea{
-        height: 20%;
-        /* border: 2px solid #91acdf; */
-        margin-bottom: 8%;
-        margin-top: 3%;
+    .small-feature{
+        height: 6%;
+       /* border: 2px solid #91acdf; */
+       margin-bottom: 2.5%;
+       margin-top: 1%;
     }
     .feature-description{
         font-family: Arial, Helvetica, sans-serif;
@@ -231,7 +219,7 @@
         font-weight: bold;
         color:#00297A; 
         display: block;
-        width: 100%;
+        width: 70%;
         height: 20%;
         line-height: 24px;
 
@@ -255,6 +243,23 @@
         color:#91acdf; 
         border: 2px solid #91acdf; 
     }
+    .button2-small-feature{
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        background-color:#00297A;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+        float:right;
+        width: 20%;
+        height: 100%;
+        cursor:pointer;
+    }
+    .button2-small-feature:active{
+        background-color:#2358c2;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+    }
     .button1:active{
         background-color:#2358c2;
         color:#91acdf; 
@@ -265,9 +270,14 @@
         color:#91acdf; 
         border: 2px solid #91acdf; 
     }
+    .button3:disabled{
+        background-color:#00297a91;
+        color:#91acdf; 
+        border: 2px solid #4a7cda; 
+    }
     .button3{
         font-family: Arial, Helvetica, sans-serif;
-        font-size: 20px;
+        font-size: 16px;
         font-weight: bold;
         background-color:#00297A;
         color:#91acdf; 
@@ -276,37 +286,16 @@
         width: 25%;
         height: 60%;
         margin-right: 4%;
+        margin-bottom: 1%;
         margin-left: 4%;
         cursor:pointer;
     }
-    .button4:active{
-        background-color:#2358c2;
-        color:#91acdf; 
-        border: 2px solid #91acdf; 
-    }
-    .button4{
-        font-family: Arial, Helvetica, sans-serif;
-        font-size: 20px;
-        font-weight: bold;
-        background-color:#00297A;
-        color:#91acdf; 
-        border: 2px solid #91acdf; 
-        float:top;
-        width: 20%;
-        height: 30%;
-        margin-top: 2%;
-        margin-bottom: 2%;
-        margin-right: 10%;
-        margin-left: 10%;
-        cursor:pointer;
-    }
-
     .flowchart-area{
         position:relative;
         margin-left: 10%;
         margin-right: 10%;
         margin-top: 1%;
-        margin-bottom: 5%;
+        margin-bottom: 1%;
         padding:0;
     }
     .flowchart{
@@ -315,21 +304,17 @@
         width: 100%;
         height: 80%;
     }
-
     .large-textarea{
         resize: none;
-        width: 80%;
-        height: 60%;
+        width: 60%;
+        height: 50%;
         border: 2px solid #91acdf; 
         margin-top: 2%;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 14px;
         line-height: 24px;
         color:#3167cc;
-        padding: 0;
-        margin:0;
     }
- 
     .slider {
         float:left;
         width: 60%; 
@@ -341,8 +326,7 @@
         margin-top: 2.5%;
         margin-bottom: 1%;
         margin-left: 0;
-        margin-right: 3%;
-        
+        margin-right: 3%;   
     }
     .input-number{
        /* float:right;*/
@@ -353,36 +337,34 @@
         margin-top: 2%;
     }
     div.vis-network div.vis-edit-mode button.vis-button.vis-edit.vis-edit-mode {
-            color:rgb(13, 13, 112);
-            background-color: white;
-            border-color: white;
-            text-align: center;
-            font-size: 16pt;
-            cursor: pointer
-        }
-        div.vis-network div.vis-edit-mode div.vis-label {
-            font-size: 16pt;
-            color: purple;
-        }
+        color:rgb(13, 13, 112);
+        background-color: white;
+        border-color: white;
+        text-align: center;
+        font-size: 16pt;
+        cursor: pointer
+    }
+    div.vis-network div.vis-edit-mode div.vis-label {
+        font-size: 16pt;
+        color: purple;
+    }
+    div.vis-network div.vis-manipulation button.vis-button.vis-add {
+        color:rgb(13, 13, 112);
+        background-color: white;
+        border-color:rgb(13, 13, 112);
+        text-align: center;
+        font-size: 16pt;
+        cursor: pointer
+    }
+    div.vis-network div.vis-manipulation div.vis-label {
+        font-size: 16pt;
+        color: black;
+    }
 
-        div.vis-network div.vis-manipulation button.vis-button.vis-add {
-            color:rgb(13, 13, 112);
-            background-color: white;
-            border-color:rgb(13, 13, 112);
-            text-align: center;
-            font-size: 16pt;
-            cursor: pointer
-        }
-
-        div.vis-network div.vis-manipulation div.vis-label {
-            font-size: 16pt;
-            color: black;
-        }
-
-        div.vis-network div.vis-manipulation div.vis-none {
-            font-size: 16pt;
-            color: black;  
-        }
+    div.vis-network div.vis-manipulation div.vis-none {
+        font-size: 16pt;
+        color: black;  
+    }
 </style> 
 
 <script> 
@@ -556,7 +538,7 @@
                 
         edges: {
             width: 1.5,
-            length: 300,
+            length: 400,
             style: 'line',
             color: {
                 color: '#6ebfff', 
@@ -688,65 +670,55 @@
         joinLeaves();
     }
 
+    selectedEdges = {};
+    selectedEdgesCount = 0;
+    selectedNodes = {};
+    selectedNodesCount = 0;
+    
+    network.on("selectEdge", function(param){
+        selectedEdges = {};
+        selectedEdgesCount = 0;
+        for (i = 0; i < param.edges.length; i++) {
+            selectedEdges[param.edges[i]] = "";
+            selectedEdgesCount += 1;
+        }
+    });
+
+    network.on("deselectEdge", function(param){
+        for (i = 0; i < param.previousSelection.edges.length; i++) {
+            previouslySelectedEdge = param.previousSelection.edges[i].id;
+            if (! (previouslySelectedEdge in param.edges)  && (previouslySelectedEdge in selectedEdges)) {
+                delete selectedEdges[previouslySelectedEdge];
+                selectedEdgesCount -= 1;
+            }
+        }
+    });
+
     network.on("selectNode", function(param){
 
-        if (param.nodes.length === 1) {
-            if (network.isCluster(param.nodes[0]) === true) {
-               network.openCluster(param.nodes[0]);
+        if (param.nodes.length === 1 && network.isCluster(param.nodes[0]) === true) {
+            network.openCluster(param.nodes[0]);
+        }
+        else {
+            selectedNodes = {};
+            selectedNodesCount = 0;
+            for (i = 0; i < param.nodes.length; i++) {
+                selectedNodes[param.nodes[i]] = "";
+                selectedNodesCount += 1;
             }
         }
-        else if(param.nodes.length === 2){
-            selectedNodes.push(param.nodes[0]);
-            selectedNodes.push(param.nodes[1]);
-        }
     });
+
     network.on("deselectNode", function(param){
-
-        selectedNodes = [];
-    });
-
-    selectedEdge = "";
-    selectedNodes = [];
-    network.on("selectEdge", function(param){
-        if (param.edges.length === 1) {
-            edgeId = param.edges[0];
-            if(selectedEdge.localeCompare("") == 0){
-                selectedEdge = edgeId;
-            }
-            else {
-                selectedEdge = "";
-                parPath = parentPath[edgeId];
-                
-                nodeFromSel = network.body.edges[edgeId].options.from.toString();
-                nodeToSel = network.body.edges[edgeId].options.to.toString();
-
-                newColor = '#6ebfff';
-                newFontColor = '#00297A';
-                newBackColor = '#c4e5ff';
-                edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor}});
-                nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
-                nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
-
-
-                for (i = 0 ; i < paths[parPath].length; i++) {
-                    edge = (paths[parPath])[i];
-
-                    nodeFrom = network.body.edges[edge].options.from.toString();
-                    nodeTo = network.body.edges[edge].options.to.toString();
-
-                    if (nodeFromSel.localeCompare(nodeFrom) === 0 && nodeToSel.localeCompare(nodeTo) === 0){
-                        continue;
-                    } 
-
-                    else {
-                        edges.update({id:edge, color:{color:newColor}, font: {  color: newFontColor}});
-                        nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: {  color: newFontColor}});
-                        nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: {  color: newFontColor}});
-                    }
-                
-                }
+        for (i = 0; i < param.previousSelection.nodes.length; i++) {
             
+            previouslySelectedNode = param.previousSelection.nodes[i].id;
+
+            if ( !(param.nodes.includes(previouslySelectedNode)) && (previouslySelectedNode in selectedNodes)) {
+                delete selectedNodes[previouslySelectedNode];
+                selectedNodesCount -= 1;
             }
+
         }
     });
 
@@ -762,17 +734,20 @@
         return;
     }
     
-    changedNodes1 = [];
-    changedEdges1 = [];
-
-    changedNodes2 = [];
-    changedEdges2 = [];
+    changedNodes = [];
+    changedEdges = [];
 
     let getFullRealtionButton = document.getElementById("get-full-relation");
     getFullRealtionButton.onclick = function(){
         
-        if (selectedEdge.localeCompare("") !== 0){
-            edgeId = selectedEdge;
+        if(selectedEdgesCount == 0) {
+            alert("Please select an edge before you click on this button.")
+        }
+        else if (selectedEdgesCount == 1){
+            edgeId = ""
+            for (edge in selectedEdges){
+                edgeId = edge;
+            } 
             parPath = parentPath[edgeId];
             
             nodeFromSel = network.body.edges[edgeId].options.from.toString();
@@ -789,13 +764,13 @@
             } 
             
             edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor }});
-            changedEdges1.push(edgeId);
+            changedEdges.push(edgeId);
 
             nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor  }});
-            changedNodes1.push(nodeFromSel);
+            changedNodes.push(nodeFromSel);
 
             nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: {color: newFontColor  }});
-            changedNodes1.push(nodeToSel);
+            changedNodes.push(nodeToSel);
 
             for (i = 0 ; i < paths[parPath].length; i++) {
                 edge = (paths[parPath])[i];
@@ -808,29 +783,31 @@
                 } 
 
                 edges.update({id: edge, color:{color:newColor}, font: { color: newFontColor}});
-                changedEdges1.push(edge);
+                changedEdges.push(edge);
 
                 nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: { color: newFontColor }});
-                changedNodes1.push(nodeFrom);
+                changedNodes.push(nodeFrom);
 
                 nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
-                changedNodes1.push(nodeTo);
+                changedNodes.push(nodeTo);
             }
+        }
+        else {
+            alert("Please select exactly 1 edge before you click on this button.")
         }
     }
 
-    let getAllRealtionsButton = document.getElementById("get-all-paths");
-    getAllRealtionsButton.onclick = function(){
-        if (selectedNodes.length != 2){
-            alert("Please select exactly 2 entities");
+    let getRelationsButton = document.getElementById("get-paths");
+    getRelationsButton.onclick = function(){
+        if (selectedNodesCount != 2) {
+            alert("Please select exactly 2 nodes. \nMake sure that you use a long click or press Ctrl before you select the second node.");
             return;
         }
-        let getAllRelationsTextArea = document.getElementById("get-all-relations-textarea");
-        getAllRelationsTextArea.innerHTML = "Below are relations between *" + selectedNodes[0] + "* and *" + selectedNodes[1]+ "*:\n";
-        allPaths = findNonIntersectingPaths(selectedNodes[0], selectedNodes[1]);
-        for (i = 1; i <= allPaths.length; i++){
-            getAllRelationsTextArea.innerHTML += ("PATH " + i.toString() + ": \n" + allPaths[i-1] + "\n");
+        selectedNodesList = []
+        for (node in selectedNodes){
+            selectedNodesList.push(node);
         }
+        findNonIntersectingPaths(selectedNodesList[0], selectedNodesList[1]);
     }
 
     function getRandomColor() {
@@ -850,8 +827,8 @@
         nodes.update({id: node1, color:{border: newColor, background: newBackColor}, font: { color: newFontColor, bold:true }});
         nodes.update({id: node2, color:{border: newColor,  background: newBackColor}, font: { color: newFontColor, bold:true}});
         
-        changedNodes2.push(node1);
-        changedNodes2.push(node2);
+        changedNodes.push(node1);
+        changedNodes.push(node2);
 
         path = []; 
         parentNode = {};
@@ -916,15 +893,15 @@
                 takenEdges[parentNode[current][1]] = "0";
 
                 edges.update({id: parentNode[current][1], color:{color: newColor}, font: { color: newColor}});
-                changedEdges2.push(parentNode[current][1]);
+                changedEdges.push(parentNode[current][1]);
 
                 if (nodeFrom.localeCompare(node1) != 0 && nodeFrom.localeCompare(node2) != 0) {
                     nodes.update({id: nodeFrom, color:{border:newColor}, font: { color: newColor }});
-                    changedNodes2.push(nodeFrom);
+                    changedNodes.push(nodeFrom);
                 }
                 if (nodeTo.localeCompare(node1) != 0 && nodeTo.localeCompare(node2) != 0) {
                     nodes.update({id: nodeTo, color:{border:newColor}, font: { color: newColor}});
-                    changedNodes2.push(nodeTo);
+                    changedNodes.push(nodeTo);
                 }
             
                 pathToPrint.push(nodeFrom + " " + edgeLabel + " " + nodeTo + "\n");
@@ -936,29 +913,16 @@
                     delete parentNode[node];
                 }
             }
-
-            pathToPrintStr = ""
-            for (i = pathToPrint.length-1; i >=0;  i--){
-                pathToPrintStr += pathToPrint[i];
-            }
-            
-            path.push(pathToPrintStr);
             
         }
 
-        return path;
+        return;
     }
 
-    let revertGetAllRelationsButton = document.getElementById("revert-get-all-paths");
-    revertGetAllRelationsButton.onclick = function(){
-        revertToOriginalColors(changedNodes2, changedEdges2); 
+    let revertButton = document.getElementById("revert");
+    revertButton.onclick = function(){
+        return revertToOriginalColors(changedNodes, changedEdges);
     }
-    
-    let revertGetFullRelationButton = document.getElementById("revert-get-full-relation");
-    revertGetFullRelationButton.onclick = function(){
-        revertToOriginalColors(changedNodes1, changedEdges1); 
-    }
-
     revertToOriginalColors = function(nodesList, edgesList){
         originalColor = '#6ebfff';
         originalFontColor = '#00297A';
@@ -971,6 +935,8 @@
         for (i = 0; i < edgesList.length; i++){
             edges.update({id: edgesList[i], color:{color:originalColor}, font: { color: originalFontColor}});
         }
+        changedNodes = [];
+        changedEdges = [];
     }
 
     let saveAsImageButton = document.getElementById("save-as-image");
