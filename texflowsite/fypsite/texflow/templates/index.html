@@ -444,13 +444,17 @@
             much = bulletpoints[in_nodes[i].label].length;
             var k;
             var future_title = "";
-            
+            var counter = 0;
             for(k = 0; k<much; k++){
                 future_title = future_title.concat("-");
                 future_title = future_title.concat(bulletpoints[in_nodes[i].label][k]);
                 future_title = future_title.concat("\n");
+                counter = counter + 1;
             } 
-            node.title = future_title;
+            if(counter > 0){
+                node.title = future_title;
+                node.color = "#FF0000";
+            }
         }
     
         nodes.push(node);
