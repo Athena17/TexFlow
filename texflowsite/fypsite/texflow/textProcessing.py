@@ -358,6 +358,223 @@ def find_main_words(paragraph):
     return common_exp_merged
 
 #%% MAIN
+def full_example(paragraph):
+    nlp = spacy.load('en_core_web_sm')
+    neuralcoref.add_to_pipe(nlp)
+    doc1 = nlp(paragraph)
+
+    #Find the most common words
+    common_words = common_tokens(doc1)
+    for i in range(len(common_words)):
+        common_words[i] = common_words[i][0]
+
+    #Find the most common expressions of up to 3 words
+    common_exp = com(doc1)
+    #print(common_exp)
+
+
+    #if(summarization==True):
+    #    paragraph = summarize(paragraph, summarization_percentage)
+    #    doc1 = nlp(paragraph)
+    
+    paragraph_deref = paragraph
+
+    #print(doc1._.coref_clusters)
+
+
+    for i in range(len(doc1._.coref_clusters)):
+        recognized_entity = False
+        for j in range(len(doc1._.coref_clusters[i])):
+            #print(doc1._.coref_clusters[i][j])
+            #check if a member of the cluster is very common or is a recognized entity
+            if (doc1._.coref_clusters[i][j] in doc1.ents)or(preprocess_token(doc1._.coref_clusters[i][j]) in common_words):
+                replace = doc1._.coref_clusters[i][j]
+                recognized_entity = True
+                break
+        if recognized_entity:
+            for k in range(len(doc1._.coref_clusters[i])):
+                if (len(nltk.word_tokenize(str(doc1._.coref_clusters[i][k])))>1) or (nltk.pos_tag(nltk.word_tokenize(str(doc1._.coref_clusters[i][k])))[0][1] != "PRP$"):
+                    paragraph_deref = paragraph_deref.replace(" " + str(doc1._.coref_clusters[i][k]) + " ", " " + str(replace) + " ", 1)
+        else:
+            for k in range(len(doc1._.coref_clusters[i])):
+                if (len(nltk.word_tokenize(str(doc1._.coref_clusters[i][k])))>1) or (nltk.pos_tag(nltk.word_tokenize(str(doc1._.coref_clusters[i][k])))[0][1] != "PRP$"):
+                    paragraph_deref = paragraph_deref.replace(" " + str(doc1._.coref_clusters[i][k]) + " ", " " + str(doc1._.coref_clusters[i].main) + " ", 1)
+
+
+    #we need to take the common_expressions and make them in a list
+    common_exp_merged = []
+    for i in range(len(common_exp)):
+            if(type(common_exp[i][0]) == tuple):
+                for j in range(len(common_exp[i][0])):
+                    if (j == 0):
+                        common_exp_merged.append(common_exp[i][0][0])
+                    else: 
+                        common_exp_merged[i] = common_exp_merged[i] + " " +  common_exp[i][0][j]
+            else:
+                common_exp_merged.append(common_exp[i][0])
+
+    #Now we need to look at common_exp_merged and replace the common elements with named entities by their true names
+    for i in range(len(common_exp_merged)):
+        for j in range(len(doc1.ents)):
+            if(cosine_similarity(common_exp_merged[i], str(doc1.ents[j])) > 0.4):
+                common_exp_merged[i] = str(doc1.ents[j])
+                break
+
+
+
+
+    tokenized_by_sent = nltk.sent_tokenize(paragraph_deref) #Tokenize by sentence
+    #print(paragraph_deref)
+    global_text = tokenized_by_sent
+                        
+    ent = [] #List of the entities in the text
+    enttype = [] #List of entity types
+
+    newgrammar = """
+        NP1:{(<PDT|DT|PRP.*|CD|JJ.*|RBS|RB>*<NN.*|JJ.*|CD|PRP.*>+<POS>?<CD|JJ.*|NN.*|PRP.*>*<VBN>?(<CC>?<RB>*<RBR>)*)|(<DT|PRP>)}
+        VP: {<MD>?<RB>?<VB.*>+<RP>?<RB>?<VB.*>*(<CC><MD>?<RB>?<VB.*>+<RP>?<RB>?)*}
+        NP2: {<NP1><RB>*(<CC>(<IN>*<NP1>+)+<RB>*<VP>?)*}
+        }<CC>(<IN>*<NP1>+)+<RB>*<VP>{
+        WHCLAUSE: {<IN>?<WDT|WP.*|WRB><NP2|NP1>?<VP>+<NP2|NP1|JJ.*>?}
+        NP: {(<TO><NP2|NP1>)|(<TO>+<VP>(<CC><TO>+<VP>)*)|(<NP2|NP1>(<IN>+<NP2|NP1>)+<WHCLAUSE>?)|(<RBR><NP2|NP1>(<IN><NP2|NP1><VP>?)?)|(<NP2|NP1>?<WHCLAUSE>?)}
+        BIGP: {(<NP>|(<IN>+<NP>))+}
+        CLAUSE: {<BIGP><VP>}
+        ENT:{<CLAUSE><BIGP|CLAUSE>*}
+        """
+    for s in range(len(global_text)):
+        tokenized_by_word = preprocess(global_text[s]) #Tokenize by word
+        tagged_sentence = nltk.pos_tag(tokenized_by_word) #Tag each word
+   
+        cp = nltk.RegexpParser(newgrammar)
+        chunked_sentence = cp.parse(tagged_sentence)
+        #print(chunked_sentence)
+        
+        traverse_tree(chunked_sentence, ent, enttype)
+
+
+    for i in range(len(ent)):
+        for j in range(len(ent[i])):
+            if(enttype[i][j] == "BIGP"):
+                for k in common_exp_merged:
+                    if(cosine_similarity(str(k), ent[i][j]) > 0.01):
+                        if(len(ent[i][j].split(str(k),1)) > 1):
+                            split_a,split_b = ent[i][j].split(str(k),1)
+                            if(j>0 and enttype[i][j-1] == "VERB"):
+                                ent[i][j-1] = ent[i][j-1] + split_a 
+                                ent[i][j] = str(k)
+                                if(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB" and split_b != ""):
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                elif(split_b != ""):
+                                    ent[i][j-1] = ent[i][j-1] + " _ " + split_b
+                            elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
+                                if(split_a != ""):
+                                    ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                                else:
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                            break    
+
+    for i in range(len(ent)):
+        for j in range(len(ent[i])):                        
+            if(enttype[i][j] == "VERB"):
+                if(j > 0):
+                    if ent[i][j-1] in ent[i][j]:
+                        ent[i][j] = ent[i][j].replace(ent[i][j-1], "^")
+                if(j < len(ent[i])-1):
+                    if ent[i][j+1] in ent[i][j]:
+                        ent[i][j] = ent[i][j].replace(ent[i][j+1], "_")   
+            
+    for i in range(len(ent)):
+        for j in range(len(ent[i])): 
+            if(enttype[i][j] == "VERB"):            
+                for k in common_exp_merged:
+                    if(len(ent[i][j].split(str(k),1)) > 1):
+                        if(cosine_similarity(str(k), ent[i][j]) > 0.01):
+                            split_a, split_b = ent[i][j].split(str(k),1)
+                            enttype[i].insert(j+1, "VERB")
+                            ent[i].insert(j+1, split_b)
+                            enttype[i].insert(j+1, "BIGP")
+                            ent[i].insert(j+1, str(k))
+                            ent[i][j] = split_a                                   
+
+    for i in range(len(ent)):
+        for j in range(len(ent[i])):
+            if(enttype[i][j] == "BIGP"):
+                for k in range(len(ent)):
+                    for l in range(len(ent[k])):
+                        if(enttype[k][l] == "BIGP"):
+                            if cosine_similarity(ent[k][l], ent[i][j]) > 0.6:
+                                ent[k][l] = ent[i][j]
+                    
+#%% DRAW GRAPH
+
+    G = nx.MultiGraph()
+    paths = {}
+    parentPath = {}
+
+    flowchartGraph = {}
+    flowchartGraph['nodes'] = G.nodes
+    flowchartGraph['edges'] = {}
+    
+    for i in range(len(ent)):
+        paths[str(i)] = []
+        for j in range(len(ent[i])):
+            if(j == 0):
+                if(ent[i][0] in common_exp_merged):
+                    G.add_node(ent[i][0])
+                else:
+                    G.add_node(ent[i][0])
+            else:
+                if(enttype[i][j] == "BIGP"):
+                    if ent[i][j] in common_exp_merged:
+                        G.add_node(ent[i][j])
+                    else:
+                        G.add_node(ent[i][j])
+                    if(enttype[i][j-1] == "VERB"):
+                        lab = ent[i][j-1]
+                        if lab != " ":
+                            lab = lab.strip()
+                        G.add_edge(ent[i][j-2], ent[i][j], label = lab)
+                        key = ent[i][j-2].strip() + "|" + ent[i][j].strip() + "|" + lab + "|"
+                        flowchartGraph['edges'][key] = lab
+                        parentPath[key] = str(i)
+
+                    elif(enttype[i][j-1] == "BIGP"):
+                        G.add_edge(ent[i][j-1], ent[i][j], label = " ")
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
+                        flowchartGraph['edges'][key] = " "
+                        parentPath[key] = str(i)
+
+                elif(enttype[i][j] == "VERB"):
+                    if(j == len(ent[i]) - 1):
+                        if ent[i][j] in common_exp_merged:
+                            G.add_node(ent[i][j])
+                        else:
+                            G.add_node(ent[i][j])
+                        G.add_edge(ent[i][j-1], ent[i][j], label = " ")
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
+                        flowchartGraph['edges'][key] = " "
+                        parentPath[key] = str(i)
+
+    G.graph['graph']={'rankdir':'TD'}
+    G.graph['node']={'shape':'rectangle'}
+    G.graph['edges']={'arrowsize':'4.0'}
+
+
+    ########## Pass the graph to the interface ########
+    """ print("NODES:\n")
+    for node in G.nodes:
+        print(node)
+
+    print("EDGES:\n")
+    for edge in G.edges:
+        print(G.edges[edge]) """ 
+    
+
+    flowchartGraph['parentPath'] = parentPath
+
+    return flowchartGraph
 
 def run_example(paragraph, main_words):
     

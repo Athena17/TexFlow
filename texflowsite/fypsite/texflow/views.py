@@ -32,12 +32,9 @@ def index(request):
     
     if(request.method == 'POST'):
         data = request.POST
-        if(data.__contains__('input-text')):
+        print(data)
+        if(data.__contains__('quick-and-brief')):
             inputText = request.POST['input-text']
-            if (data.__contains__('generate-flowchart')):
-                #print("summary", request.POST['amount'])
-                inputText = summarize(inputText, int(request.POST['amount']))
-             
             mainw = find_main_words(inputText)
             main_dic = {}
             general = {'time' : 1}
@@ -47,7 +44,7 @@ def index(request):
             mainJSON = dumps(main_dic)
             gen = dumps(general) 
             
-            graph = run_example(inputText, [])
+            graph = run_example(inputText, mainw)
 
             #print(graph)
             nodes = {}
@@ -69,7 +66,42 @@ def index(request):
 
             return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'mainwords' : mainJSON, 'general' : gen}) 
 
+        elif(data.__contains__('generate-flowchart')):
+            inputText = request.POST['input-text']
+            nodes = {}
+            nodes["0"] = inputText
+            inputText = summarize(inputText, int(request.POST['amount']))
+             
+            main_dic = {}
+            general = {'time' : 1}
+            main_dic["0"] = inputText
+            mainJSON = dumps(main_dic)
+            gen = dumps(general) 
             
+            graph = full_example(inputText)
+
+            #print(graph)
+
+            for node in graph['nodes']:
+                nodeId = node.strip()
+                nodes[nodeId] = decrease_label_width(nodeId, 20)
+
+
+
+            edges = {}
+            for edge in graph['edges']:
+                edgeLabel = graph['edges'][edge]
+                edges[edge] = decrease_label_width(edgeLabel, 30)
+
+            # dump data 
+            data1JSON = dumps(nodes) 
+            data2JSON = dumps(edges) 
+            data3JSON = dumps(graph['parentPath'])
+
+            return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'mainwords' : mainJSON, 'general' : gen}) 
+                
+
+
         elif(data.__contains__('entities-list')):
             
             nstr = request.POST['entities-list']
