@@ -378,7 +378,7 @@
     });
 
     var transaction = JSON.parse("{{general|escapejs}}");
-    if(transaction["time"] == 1){
+    if(transaction["time"] == 1 || transaction["time"] == 3){
         var words = JSON.parse("{{mainwords|escapejs}}");
         var wordlist = document.getElementById('entities-list');
         wordlist.innerHTML = "";
@@ -398,7 +398,7 @@
     let in_nodes = [];
     let in_edges = [];
 
-    if(transaction["time"] <= 2){
+    if(transaction["time"] <= 3){
         var data1 = JSON.parse("{{data1|escapejs}}"); 
         
         for (var x in data1) {
@@ -431,12 +431,28 @@
     paths = {};
     parentPath = {};
     
+    if(transaction["time"] <= 2) {
+        bulletpoints = JSON.parse("{{bullets|escapejs}}");
+    }
     
     for (i = 0; i < in_nodes.length; i++){
         var node = new Object();
         node.id = in_nodes[i].id;
         node.label = in_nodes[i].label;
-
+            
+        if((transaction["time"] <= 2) && (in_nodes[i].label in bulletpoints)) {
+            much = bulletpoints[in_nodes[i].label].length;
+            var k;
+            var future_title = "";
+            
+            for(k = 0; k<much; k++){
+                future_title = future_title.concat("-");
+                future_title = future_title.concat(bulletpoints[in_nodes[i].label][k]);
+                future_title = future_title.concat("\n");
+            } 
+            node.title = future_title;
+        }
+    
         nodes.push(node);
     }
     nodes = new vis.DataSet(nodes);

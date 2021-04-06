@@ -44,8 +44,7 @@ def index(request):
             mainJSON = dumps(main_dic)
             gen = dumps(general) 
             
-            graph = run_example(inputText, mainw)
-
+            (graph, bullet) = run_example(inputText, mainw)
             #print(graph)
             nodes = {}
             for node in graph['nodes']:
@@ -63,8 +62,9 @@ def index(request):
             data1JSON = dumps(nodes) 
             data2JSON = dumps(edges) 
             data3JSON = dumps(graph['parentPath'])
+            bulletpoints = dumps(bullet)
 
-            return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'mainwords' : mainJSON, 'general' : gen}) 
+            return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'mainwords' : mainJSON, 'general' : gen, 'bullets' : bulletpoints}) 
 
         elif(data.__contains__('generate-flowchart')):
             inputText = request.POST['input-text']
@@ -73,7 +73,7 @@ def index(request):
             inputText = summarize(inputText, int(request.POST['amount']))
              
             main_dic = {}
-            general = {'time' : 1}
+            general = {'time' : 3}
             main_dic["0"] = inputText
             mainJSON = dumps(main_dic)
             gen = dumps(general) 
@@ -110,7 +110,7 @@ def index(request):
             inputText = request.POST['hidden-input']
             nlist.append(nlist[len(nlist)-1])
             
-            graph = run_example(inputText, nlist)
+            (graph, bullet) = run_example(inputText, nlist)
 
             nodes = {}
             for node in graph['nodes']:
@@ -132,8 +132,9 @@ def index(request):
             data1JSON = dumps(nodes) 
             data2JSON = dumps(edges) 
             data3JSON = dumps(graph['parentPath'])
+            bulletpoints = dumps(bullet)
 
-            return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'general' : gen}) 
+            return render(request, 'index.html', {'data1': data1JSON, 'data2': data2JSON, 'data3': data3JSON,'general' : gen, 'bullets' : bulletpoints}) 
 
         else:
             return render(request, 'index.html',{})

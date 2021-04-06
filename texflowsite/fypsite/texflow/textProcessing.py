@@ -636,7 +636,7 @@ def run_example(paragraph, main_words):
     for i in tokenized_by_sent:
         ent_count = 0
         for j in common_exp_merged:
-            if j in i:
+            if cosine_similarity(j,i) > 0.05:
                 ent_count = ent_count + 1
                 matched_ent = j
             
@@ -792,7 +792,7 @@ def run_example(paragraph, main_words):
 
     flowchartGraph['parentPath'] = parentPath
 
-    return flowchartGraph
+    return (flowchartGraph, bullet)
     #A = to_agraph(G)
     #print(A)
     #A.layout('dot')
