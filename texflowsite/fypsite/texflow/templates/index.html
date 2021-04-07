@@ -444,21 +444,27 @@
     
     function decreaseLabelWidth(maxWidth, l){
         
-        wordsList = l.split(" ");
-
+        var wordsList = l.split(" ");
+        
+        if (wordsList.length == 0){
+            return l;
+        }
+        
         newLabel = wordsList[0];
+        var charCount = newLabel.length;
+        for (j = 1; j < wordsList.length; j++){
 
-        charCount = newLabel.length;
-        for (i = 1; i < wordsList.length; i++){
-            if (charCount + wordsList[i].length > maxWidth) {
-                newLabel += ("\n" + wordsList[i]);
-                charCount = 0;
+            if ( (charCount + wordsList[j].length) > maxWidth) {
+                newLabel += ("\n" + wordsList[j]);
+                charCount = wordsList[j].length;
             }
             else {
-                newLabel += (" " + wordsList[i])
-                charCount += (1 + wordsList[i].length);
+                newLabel += (" " + wordsList[j]);
+                charCount += 1;
+                charCount += wordsList[j].length;
             }
         }
+        
         return newLabel;
     }
     
@@ -468,15 +474,13 @@
         node.label = in_nodes[i].label;
             
         if((transaction["time"] <= 2) && (in_nodes[i].label in bulletpoints)) {
-            much = bulletpoints[in_nodes[i].label].length;
-            var k;
+            var much = bulletpoints[in_nodes[i].label].length;
             var future_title = "";
             var counter = 0;
-            for(k = 0; k<much; k++){
-                future_title = future_title.concat("-");
-                line = decreaseLabelWidth(30, bulletpoints[in_nodes[i].label][k]);
-                future_title = future_title.concat(line);
-                future_title = future_title.concat("\n");
+
+            for(k = 0; k < much; k++){
+                line = decreaseLabelWidth(50, bulletpoints[in_nodes[i].label][k]);
+                future_title += ("-" + line + "\n");
                 counter = counter + 1;
             } 
             if(counter > 0){
