@@ -59,6 +59,7 @@ def index(request):
                 edges[edge] = decrease_label_width(edgeLabel, 30)
 
             # dump data 
+
             data1JSON = dumps(nodes) 
             data2JSON = dumps(edges) 
             data3JSON = dumps(graph['parentPath'])

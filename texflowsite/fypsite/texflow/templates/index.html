@@ -82,21 +82,27 @@
 
         <div class = "features">
             <div class = "feature">
-                <button class = "button3" id="enable-physics"> Enable Physics</button>
-                <button class = "button3" id="disable-physics"> Disable Physics</button>
-                <button class = "button3" id="merge-leaves"> Merge Leaves </button>
-                
+                <!-- <button class = "button3" id="enable-physics"> Enable Physics</button>
+                <button class = "button3" id="disable-physics"> Disable Physics</button> -->
+
                 <!--
                     To highlight the path (representing the full relation) corresponding to 
                     an edge, select the edge and click on:
                 -->
-                <button class = "button3" id = "get-full-relation"> Highlight Full Path For Selcted Edge </button>
-                
+                <button class = "button3" id = "get-full-relation"> Highlight Full Path For Selected Edge </button>
+
                 <!--
                     To highlight and print all paths between 2 entities, select them and click on:
                 -->
                 <button class = "button3" id = "get-paths"> Highlight Non-Intersecting Paths Between 2 Selected Nodes </button>
+
                 <button class = "button3" id = "revert"> Revert To Original Colors </button>
+                <button class = "button3" id="merge-leaves"> Merge Leaves </button>
+                
+
+                
+
+
             </div>
             
         </div>
@@ -539,6 +545,7 @@
         },
         interaction: {multiselect: true},
         layout: {
+            /*
             randomSeed: undefined,
             improvedLayout:true,
             clusterThreshold: 150,
@@ -553,8 +560,19 @@
             direction: 'UD',        // UD, DU, LR, RL
             sortMethod: 'hubsize',  // hubsize, directed
             shakeTowards: 'leaves'  // roots, leaves
-            }
-    },
+            },
+            */
+            hierarchical: {
+                direction: "UD",
+            sortMethod: "directed",
+            },
+        },
+        physics: {
+        hierarchicalRepulsion: {
+            avoidOverlap: 1,
+            },
+        },
+    
                 
         edges: {
             width: 1.5,
@@ -600,14 +618,30 @@
     };
 
     var network = new vis.Network(container, data, options);
+    setTimeout(()=>{
+    network.setOptions({
+        layout:{
+            hierarchical: false
+        },
+    });
+    },1000);
+    
+    setTimeout(()=>{
+    network.setOptions({ physics: false});
+    },1000);
+    
+    
+
     
     for (edge in network.body.edges){
         key = edge;
+
         edgeLabel = network.body.edges[edge].options.label;
         value = network.body.edges[edge].options.from.toString() + "|" + network.body.edges[edge].options.to.toString() + "|" + edgeLabel + "|";
 
         parentPath[key] = data3[value];
-        
+        alert(key + "Hello" + parentPath[key]);
+
         if (data3[value] in paths){
             paths[data3[value]].push(edge);
         }
@@ -741,7 +775,7 @@
 
         }
     });
-
+    /*
     let disablePhysicsButton = document.getElementById("disable-physics");
     disablePhysicsButton.onclick = function() {
         network.setOptions( { physics: false } );
@@ -752,7 +786,7 @@
     enablePhysicsButton.onclick = function() {
         network.setOptions( { physics: true } );
         return;
-    }
+    }*/
     
     changedNodes = [];
     changedEdges = [];
