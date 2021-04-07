@@ -50,6 +50,35 @@ def combine_name(tree ,s, a):
         b = b + " " + s[i]
     a.append(b)
 
+def make_numbers_numeric(text):
+
+    units = [
+    "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+    "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+    "sixteen", "seventeen", "eighteen", "nineteen",
+    ]
+    units_num = [i for i in range(20)]
+
+    tens = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+    tens_num = [(i * 10) for i in range(2, 10)]
+
+    scales = ["hundred", "thousand", "million", "billion", "trillion"]
+    scales_num = [100, 1000, 1000000, 1000000000, 1000000000000]
+
+    text1 = ""
+    for i in range(20):
+        text1 = text.replace(units[i], str(units_num[i]))
+        text1 = text1.replace(units[i].capitalize(), str(units_num[i]))
+    
+    for i in range(8):
+        text1 = text1.replace(tens[i], str(tens_num[i]))
+        text1 = text1.replace(tens[i].capitalize(), str(tens_num[i]))
+
+    for i in range(5):
+        text1 = text1.replace(scales[i], str(scales_num[i]))
+
+    print(text1)
+    return text1
 
 def get_name(tree, s):
     l = len(tree)
@@ -242,7 +271,7 @@ def com(input_doc):
     
     for index in sorted(to_remove, reverse=True):
        del most_common[index]
-    limit2 =  math.ceil(np.log(word_count)/2 + word_count/200) if word_count>100 else 3
+    limit2 =  math.ceil(np.log(word_count)/2 + word_count/1000) if word_count>100 else 3
     if(len(most_common)>limit2):
         most_common = most_common[:limit2]
     #print(most_common)
@@ -358,7 +387,10 @@ def find_main_words(paragraph):
     return common_exp_merged
 
 #%% MAIN
-def full_example(paragraph):
+def full_example(parag):
+    
+    #paragraph = make_numbers_numeric(parag)
+    paragraph = parag
     nlp = spacy.load('en_core_web_sm')
     neuralcoref.add_to_pipe(nlp)
     doc1 = nlp(paragraph)
@@ -510,15 +542,13 @@ def full_example(paragraph):
 #%% DRAW GRAPH
 
     G = nx.MultiGraph()
-    paths = {}
-    parentPath = {}
 
+    parentPath = {}
     flowchartGraph = {}
     flowchartGraph['nodes'] = G.nodes
     flowchartGraph['edges'] = {}
     
     for i in range(len(ent)):
-        paths[str(i)] = []
         for j in range(len(ent[i])):
             if(j == 0):
                 if(ent[i][0] in common_exp_merged):
@@ -532,17 +562,14 @@ def full_example(paragraph):
                     else:
                         G.add_node(ent[i][j])
                     if(enttype[i][j-1] == "VERB"):
-                        lab = ent[i][j-1]
-                        if lab != " ":
-                            lab = lab.strip()
-                        G.add_edge(ent[i][j-2], ent[i][j], label = lab)
-                        key = ent[i][j-2].strip() + "|" + ent[i][j].strip() + "|" + lab + "|"
-                        flowchartGraph['edges'][key] = lab
+                        G.add_edge(ent[i][j-2], ent[i][j], label = ent[i][j-1].strip())
+                        key = ent[i][j-2].strip() + "|" + ent[i][j].strip() + "|" + ent[i][j-1].strip() + "|"
+                        flowchartGraph['edges'][key] = ent[i][j-1].strip()
                         parentPath[key] = str(i)
 
                     elif(enttype[i][j-1] == "BIGP"):
                         G.add_edge(ent[i][j-1], ent[i][j], label = " ")
-                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "| |"
                         flowchartGraph['edges'][key] = " "
                         parentPath[key] = str(i)
 
@@ -553,7 +580,7 @@ def full_example(paragraph):
                         else:
                             G.add_node(ent[i][j])
                         G.add_edge(ent[i][j-1], ent[i][j], label = " ")
-                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "| |"
                         flowchartGraph['edges'][key] = " "
                         parentPath[key] = str(i)
 
@@ -576,8 +603,10 @@ def full_example(paragraph):
 
     return flowchartGraph
 
-def run_example(paragraph, main_words):
+def run_example(parag, main_words):
     
+    #paragraph = make_numbers_numeric(parag)
+    paragraph = parag
     if len(main_words) == 0:
         main_words = find_main_words(paragraph)
 
@@ -750,18 +779,15 @@ def run_example(paragraph, main_words):
                     else:
                         G.add_node(ent[i][j])
                     if(enttype[i][j-1] == "VERB"):
-                        lab = ent[i][j-1]
-                        if lab != " ":
-                            lab = lab.strip()
-                        G.add_edge(ent[i][j-2], ent[i][j], label = lab)
-                        key = ent[i][j-2].strip() + "|" + ent[i][j].strip() + "|" + lab + "|"
-                        flowchartGraph['edges'][key] = lab
+                        G.add_edge(ent[i][j-2], ent[i][j], label = ent[i][j-1].strip())
+                        key = ent[i][j-2].strip() + "|" + ent[i][j].strip() + "|" + ent[i][j-1].strip() + "|"
+                        flowchartGraph['edges'][key] = ent[i][j-1].strip()
                         parentPath[key] = str(i)
 
                     elif(enttype[i][j-1] == "BIGP"):
-                        G.add_edge(ent[i][j-1], ent[i][j], label = " ")
-                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
-                        flowchartGraph['edges'][key] = " "
+                        G.add_edge(ent[i][j-1], ent[i][j], label = "")
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "||"
+                        flowchartGraph['edges'][key] = ""
                         parentPath[key] = str(i)
 
                 elif(enttype[i][j] == "VERB"):
@@ -770,8 +796,8 @@ def run_example(paragraph, main_words):
                             G.add_node(ent[i][j])
                         else:
                             G.add_node(ent[i][j])
-                        G.add_edge(ent[i][j-1], ent[i][j], label = " ")
-                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "|" + " " + "|"
+                        G.add_edge(ent[i][j-1], ent[i][j], label = "")
+                        key = ent[i][j-1].strip() + "|" + ent[i][j].strip() + "||"
                         flowchartGraph['edges'][key] = " "
                         parentPath[key] = str(i)
 

@@ -52,8 +52,8 @@
                         percentage of the text to be represented in the flowchart, 
                         specify or drag the slider below to specify the desired percentage.
                     </label> <br>
-                    <input id="amount" name= "amount" type="number" value="50" min="30" max="100" step = "1" class = "input-number" oninput="rangeInput.value=amount.value" />
-                    <input  id="rangeInput" name= "rangeInput" type="range" min="30" max="100" step = "1" class = "slider" oninput="amount.value=rangeInput.value" />
+                    <input id="amount" name= "amount" type="number" value="100" min="30" max="100" step = "1" class = "input-number" oninput="rangeInput.value=amount.value" />
+                    <input  id="rangeInput" name= "rangeInput" type="range" value = "100" min="30" max="100" step = "1" class = "slider" oninput="amount.value=rangeInput.value" />
                     <input type ="submit" name = "generate-flowchart" class = "button2" id = "generate-flowchart" value = "Generate Flowchart">
                 </div>
                 
@@ -97,7 +97,7 @@
                 <button class = "button3" id = "get-paths"> Highlight Non-Intersecting Paths Between 2 Selected Nodes </button>
 
                 <button class = "button3" id = "revert"> Revert To Original Colors </button>
-                <button class = "button3" id="merge-leaves"> Merge Leaves </button>
+                <button class = "button3" id = "merge-leaves"> Merge Leaves </button>
                 
 
                 
@@ -403,7 +403,7 @@
     let data3 = {}
     let in_nodes = [];
     let in_edges = [];
-
+    let in_edges_labels = {};
     if(transaction["time"] <= 3){
         var data1 = JSON.parse("{{data1|escapejs}}"); 
         
@@ -425,6 +425,7 @@
             edge.from = s[0];
             edge.to = s[1];
             edge.relation = data2[x];
+            in_edges_labels[s[0] + "|" + s[1] + "|" + data2[x] + "|"] = s[2];
             in_edges.push(edge);
         }
         var recoverInput = document.getElementById('input-text');
@@ -441,6 +442,26 @@
         bulletpoints = JSON.parse("{{bullets|escapejs}}");
     }
     
+    function decreaseLabelWidth(maxWidth, l){
+        
+        wordsList = l.split(" ");
+
+        newLabel = wordsList[0];
+
+        charCount = newLabel.length;
+        for (i = 1; i < wordsList.length; i++){
+            if (charCount + wordsList[i].length > maxWidth) {
+                newLabel += ("\n" + wordsList[i]);
+                charCount = 0;
+            }
+            else {
+                newLabel += (" " + wordsList[i])
+                charCount += (1 + wordsList[i].length);
+            }
+        }
+        return newLabel;
+    }
+    
     for (i = 0; i < in_nodes.length; i++){
         var node = new Object();
         node.id = in_nodes[i].id;
@@ -453,7 +474,8 @@
             var counter = 0;
             for(k = 0; k<much; k++){
                 future_title = future_title.concat("-");
-                future_title = future_title.concat(bulletpoints[in_nodes[i].label][k]);
+                line = decreaseLabelWidth(30, bulletpoints[in_nodes[i].label][k]);
+                future_title = future_title.concat(line);
                 future_title = future_title.concat("\n");
                 counter = counter + 1;
             } 
@@ -591,7 +613,7 @@
                     enabled: true,
                     scaleFactor: 0.5,
                     type:"arrow"
-                }
+                },
             },
         },
         nodes: {
@@ -619,28 +641,30 @@
 
     var network = new vis.Network(container, data, options);
     setTimeout(()=>{
-    network.setOptions({
-        layout:{
-            hierarchical: false
-        },
-    });
+        network.setOptions({
+            layout:{
+                hierarchical: false
+            },
+        });
     },1000);
     
     setTimeout(()=>{
-    network.setOptions({ physics: false});
+        network.setOptions({ physics: false});
     },1000);
     
-    
-
-    
+    let count = 0
     for (edge in network.body.edges){
-        key = edge;
+        count += 1;
+        
+        nodeFrom = network.body.edges[edge].options.from;
+        nodeTo = network.body.edges[edge].options.to;
 
-        edgeLabel = network.body.edges[edge].options.label;
-        value = network.body.edges[edge].options.from.toString() + "|" + network.body.edges[edge].options.to.toString() + "|" + edgeLabel + "|";
+        label1 = network.body.edges[edge].options.label;
 
-        parentPath[key] = data3[value];
-        alert(key + "Hello" + parentPath[key]);
+        originalEdgeLabel = in_edges_labels[nodeFrom + "|" + nodeTo + "|" + label1 + "|"];
+
+        value = nodeFrom + "|" + nodeTo + "|" + originalEdgeLabel + "|";
+        parentPath[edge] = data3[value];
 
         if (data3[value] in paths){
             paths[data3[value]].push(edge);
@@ -715,6 +739,14 @@
 
     let mergeLeavesButton = document.getElementById("merge-leaves");
     mergeLeavesButton.onclick = function() {
+        
+        network.setOptions({
+            layout:{
+                hierarchical: true
+            },
+        });
+
+        network.setOptions({ physics: true});
         leavesCount = 0
         for(i=0; i < in_nodes.length; i++){
             if (isLeaf(in_nodes[i].id)){
@@ -722,6 +754,14 @@
             }
         }
         joinLeaves();
+
+        network.setOptions({
+            layout:{
+                hierarchical: false
+            },
+        });
+
+        network.setOptions({ physics: false});
     }
 
     selectedEdges = {};
@@ -751,7 +791,7 @@
     network.on("selectNode", function(param){
 
         if (param.nodes.length === 1 && network.isCluster(param.nodes[0]) === true) {
-            network.openCluster(param.nodes[0]);
+            //network.openCluster(param.nodes[0]);
         }
         else {
             selectedNodes = {};
