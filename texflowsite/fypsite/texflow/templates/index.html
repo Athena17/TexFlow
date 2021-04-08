@@ -467,7 +467,7 @@
         
         return newLabel;
     }
-    
+    redNodes = {};
     for (i = 0; i < in_nodes.length; i++){
         var node = new Object();
         node.id = in_nodes[i].id;
@@ -485,7 +485,8 @@
             } 
             if(counter > 0){
                 node.title = future_title;
-                node.color = "#FF0000";
+                node.color = {background: "#FF0000"};
+                redNodes[node.id] = "";
             }
         }
     
@@ -532,11 +533,7 @@
         width: '100%',
         length: '100%',
         navigation: true,
-        smoothCurves: false,
         configurePhysics: true,
-        physics: {
-            enabled: true        
-        },
         manipulation: {
             addNode: function(nodeData, callback){
                 var inputNodeLabel = prompt("Please enter the label of the node");
@@ -544,16 +541,62 @@
                 callback(nodeData);
             },
             addEdge: function(edgeData,callback) {
+            
                 var inputEdgeLabel = prompt("Please enter the label of the edge");
                 edgeData.label = inputEdgeLabel;
+                
                 if (edgeData.from === edgeData.to) {
                     var r = confirm("Are you sure you want to connect the node to itself?");
                     if (r === true) {
                         callback(edgeData);
+                        nodeF = edgeData.from;
+                        nodeT = edgeData.to;
+
+                        if (nodeF < nodeT) {
+                            var temp = nodeF;
+                            nodeF = nodeT;
+                            nodeT = temp;
+                        }
+                        if ((nodeF + "_" + nodeT) in dict) {
+                            dict[nodeF + "_" + nodeT].push(edgeData.id);
+                        }
+                        else {
+                            dict[nodeF + "_" + nodeT] = [edgeData.id];
+                        } 
+                        
+                        element = nodeF + "_" + nodeT;
+                        if (dict[element].length > 1) {
+                            for (i = 1 ; i <= dict[element].length; i++){
+                                var angle = (i*1.0)/dict[element].length;
+                                network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+                            }
+                        }
                     }
                 }
                 else {
                     callback(edgeData);
+                    nodeF = edgeData.from;
+                    nodeT = edgeData.to;
+
+                    if (nodeF < nodeT) {
+                        var temp = nodeF;
+                        nodeF = nodeT;
+                        nodeT = temp;
+                    }
+                    if ((nodeF + "_" + nodeT) in dict) {
+                        dict[nodeF + "_" + nodeT].push(edgeData.id);
+                    }
+                    else {
+                        dict[nodeF + "_" + nodeT] = [edgeData.id];
+                    } 
+                    
+                    element = nodeF + "_" + nodeT;
+                    if (dict[element].length > 1) {
+                        for (i = 1 ; i <= dict[element].length; i++){
+                            var angle = (i*1.0)/dict[element].length;
+                            network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+                        }
+                    }
                 }
             },
 
@@ -589,21 +632,30 @@
             },
             */
             hierarchical: {
+                /*
+                levelSeparation: 200,
+                nodeSpacing: 50,
+                treeSpacing: 100,
+                */
+                blockShifting: true,
+                edgeMinimization: true,
                 direction: "UD",
-            sortMethod: "directed",
+                sortMethod: "directed",
             },
         },
         physics: {
-        hierarchicalRepulsion: {
-            avoidOverlap: 1,
+            enabled: true,
+            hierarchicalRepulsion: {
+                avoidOverlap: 1,
             },
         },
     
                 
         edges: {
             width: 1.5,
-            length: 400,
+            length: 300,
             style: 'line',
+            smoothCurves: false,
             color: {
                 color: '#6ebfff', 
                 highlight: '#0061fc'
@@ -611,6 +663,7 @@
             font: {
                 size: 12,
                 color: '#00297A',
+                align: "middle",
             },
             arrows:{
                 to: {
@@ -619,6 +672,10 @@
                     type:"arrow"
                 },
             },
+            arrowStrikethrough: false,
+            smooth: {
+                type: "horizontal",
+            }
         },
         nodes: {
             shape: 'box',
@@ -653,15 +710,36 @@
     },1000);
     
     setTimeout(()=>{
-        network.setOptions({ physics: false});
+        network.setOptions( {physics: false});
     },1000);
     
-    let count = 0
+    dict = {}
     for (edge in network.body.edges){
-        count += 1;
         
         nodeFrom = network.body.edges[edge].options.from;
         nodeTo = network.body.edges[edge].options.to;
+        
+        nodeF = nodeFrom;
+        nodeT = nodeTo;
+        
+        if (nodeF < nodeT) {
+            var temp = nodeF;
+            nodeF = nodeT;
+            nodeT = temp;
+        }
+        if ((nodeF + "_" + nodeT) in dict) {
+            dict[nodeF + "_" + nodeT].push(edge);
+            /*
+            network.body.edges[edge].options.smooth.type = "dynamic";
+            network.body.edges[dict[nodeF + "_" + nodeT]].options.smooth.type = "dynamic";
+            */
+        }
+        else {
+            dict[nodeF + "_" + nodeT] = [edge];
+            /*
+            network.body.edges[edge].options.smooth.type = "discrete";
+            */
+        } 
 
         label1 = network.body.edges[edge].options.label;
 
@@ -675,6 +753,16 @@
         }
         else {
             paths[data3[value]] = [edge];
+        }
+
+    }
+
+    for (element in dict) {
+        if (dict[element].length > 1) {
+            for (i = 1 ; i <= dict[element].length; i++){
+                var angle = (i*1.0)/dict[element].length;
+                network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+            }
         }
     }
 
@@ -994,11 +1082,11 @@
                 changedEdges.push(parentNode[current][1]);
 
                 if (nodeFrom.localeCompare(node1) != 0 && nodeFrom.localeCompare(node2) != 0) {
-                    nodes.update({id: nodeFrom, color:{border:newColor}, font: { color: newColor }});
+                    nodes.update({id: nodeFrom, color:{border:newColor, background: '#c4e5ff'}, font: { color: newColor }});
                     changedNodes.push(nodeFrom);
                 }
                 if (nodeTo.localeCompare(node1) != 0 && nodeTo.localeCompare(node2) != 0) {
-                    nodes.update({id: nodeTo, color:{border:newColor}, font: { color: newColor}});
+                    nodes.update({id: nodeTo, color:{border:newColor, background: '#c4e5ff'}, font: { color: newColor}});
                     changedNodes.push(nodeTo);
                 }
             
@@ -1027,6 +1115,12 @@
         originalBackColor = '#c4e5ff';
                 
         for (i = 0; i < nodesList.length; i++){
+            if (nodesList[i] in redNodes){
+                originalBackColor = '#FF0000';
+            }
+            else {
+                originalBackColor = '#c4e5ff';
+            }
             nodes.update({id: nodesList[i], color:{border:originalColor, background: originalBackColor}, font: { color: originalFontColor, bold: false}});
         }
 
