@@ -46,7 +46,7 @@
                 
                 <hr>
 
-                <div class = "feature">
+                <div class = "middle-feature">
                     <label class = "feature-description"> 
                         For a graphical entity-relation representation of the text with a specified 
                         percentage of the text to be represented in the flowchart, 
@@ -67,7 +67,7 @@
                     </label> <br>
                         <textarea id= "entities-list" name="entities-list" class= "large-textarea" type="text"> </textarea>
                         <textarea id = "hidden-input" name="hidden-input" style="display:none;" type="text"></textarea>
-                        <input type = "submit" class = "button2" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
+                        <input type = "submit" class = "button2-entities" name = "submit-entities" id = "submit-entities" value = "Submit Entities">
                 </div>
                 <hr> 
 
@@ -81,7 +81,7 @@
         </div>
 
         <div class = "features">
-            <div class = "feature">
+            <div class = "middle-feature">
                 <!-- <button class = "button3" id="enable-physics"> Enable Physics</button>
                 <button class = "button3" id="disable-physics"> Disable Physics</button> -->
 
@@ -98,7 +98,7 @@
 
                 <button class = "button3" id = "revert"> Revert To Original Colors </button>
                 <button class = "button3" id = "merge-leaves"> Merge Leaves </button>
-                
+                <button class = "button3" id = "make-ER"> Put Edges in Grey Nodes </button>
 
                 
 
@@ -208,13 +208,19 @@
         padding:0;
     }
     .feature{
-        height: 12%;
+        height: 36%;
        /* border: 2px solid #91acdf; */
        margin-bottom: 3%;
        margin-top: 3%;
     }
     .small-feature{
         height: 6%;
+       /* border: 2px solid #91acdf; */
+       margin-bottom: 2.5%;
+       margin-top: 1%;
+    }
+    .middle-feature{
+        height: 12%;
        /* border: 2px solid #91acdf; */
        margin-bottom: 2.5%;
        margin-top: 1%;
@@ -242,6 +248,25 @@
         height: 50%;
         /*margin-right: 5%;*/
         margin-top: 2%;
+        cursor:pointer;
+    }
+    .button2-entities:active{
+        background-color:#2358c2;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+    }
+    .button2-entities{
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: bold;
+        background-color:#00297A;
+        color:#91acdf; 
+        border: 2px solid #91acdf; 
+        float:right;
+        width: 20%;
+        height: 16%;
+        /*margin-right: 5%;*/
+        margin-top: 13.5%;
         cursor:pointer;
     }
     .button2:active{
@@ -313,7 +338,7 @@
     .large-textarea{
         resize: none;
         width: 60%;
-        height: 50%;
+        height: 70%;
         border: 2px solid #91acdf; 
         margin-top: 2%;
         font-family: Arial, Helvetica, sans-serif;
@@ -568,7 +593,7 @@
                         if (dict[element].length > 1) {
                             for (i = 1 ; i <= dict[element].length; i++){
                                 var angle = (i*1.0)/dict[element].length;
-                                network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+                                //network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
                             }
                         }
                     }
@@ -594,7 +619,7 @@
                     if (dict[element].length > 1) {
                         for (i = 1 ; i <= dict[element].length; i++){
                             var angle = (i*1.0)/dict[element].length;
-                            network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+                            //network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
                         }
                     }
                 }
@@ -672,9 +697,8 @@
                     type:"arrow"
                 },
             },
-            arrowStrikethrough: false,
             smooth: {
-                type: "horizontal",
+                type: "discrete",
             }
         },
         nodes: {
@@ -701,6 +725,8 @@
     };
 
     var network = new vis.Network(container, data, options);
+    network.fit();
+    
     setTimeout(()=>{
         network.setOptions({
             layout:{
@@ -713,6 +739,7 @@
         network.setOptions( {physics: false});
     },1000);
     
+    network.fit();
     dict = {}
     for (edge in network.body.edges){
         
@@ -761,7 +788,7 @@
         if (dict[element].length > 1) {
             for (i = 1 ; i <= dict[element].length; i++){
                 var angle = (i*1.0)/dict[element].length;
-                network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
+                //network.body.edges[dict[element][i-1]].options.smooth.roundness = angle;
             }
         }
     }
@@ -1144,4 +1171,63 @@
         });
         return;
     }
+
+    let makeERButton = document.getElementById("make-ER");
+    makeERButton.onclick = function(){
+        countE = 0;
+        edgesToAdd = [];
+        edgesToRemove = [];
+        nodesToAdd = [];
+        for (edgeId in network.body.edges){
+            edgeLabel = network.body.edges[edgeId].options.label + " ";
+            nodeFrom = network.body.edges[edgeId].options.from;
+            nodeTo = network.body.edges[edgeId].options.to;
+
+            newNodeId = nodeFrom + "|" + nodeTo + "|" + edgeLabel + "|";
+            nodesToAdd.push({id: newNodeId, 
+            label: edgeLabel, 
+            shape: 'ellipse', 
+            color:{background:'#e8e8e8', border:'#e8e8e8'}, 
+            font:{color:'grey'}});
+
+            edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
+            edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
+            edgesToRemove.push({id: edgeId});
+            countE += 1
+        }
+
+        for (i = 0; i < nodesToAdd.length; i++){
+            nodes.add(nodesToAdd[i]);
+        }
+        
+        for (i=0; i < edgesToRemove.length; i++){
+            edges.remove(edgesToRemove[i]);  
+        }
+        
+        for (i=0; i < edgesToAdd.length; i++){
+            edges.add(edgesToAdd[i]);  
+        }
+
+        
+        network.setOptions( {physics: true});
+        network.setOptions( {layout:{hierarchical: true}});
+        network.fit();
+        
+        setTimeout(()=>{
+            network.setOptions({
+                layout:{
+                    hierarchical: false
+                },
+            });
+        },1000);
+    
+        setTimeout(()=>{
+            network.setOptions( {physics: false});
+        },1000);
+        network.fit();
+        
+        //edges = []
+        //data.edges = edges
+        //var network = new vis.Network(container, data, options);
+    } 
 </script>
