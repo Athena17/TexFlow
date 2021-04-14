@@ -399,7 +399,45 @@
 </style> 
 
 <script> 
-    
+    function similarity_f(s1, s2) {
+        var longer = s1;
+        var shorter = s2;
+        if (s1.length < s2.length) {
+            longer = s2;
+            shorter = s1;
+        }
+        var longerLength = longer.length;
+        if (longerLength == 0) {
+            return 1.0;
+        }
+        return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+    }
+    function editDistance(s1, s2) {
+        s1 = s1.toLowerCase();
+        s2 = s2.toLowerCase();
+
+        var costs = new Array();
+        for (var i = 0; i <= s1.length; i++) {
+            var lastValue = i;
+            for (var j = 0; j <= s2.length; j++) {
+            if (i == 0)
+                costs[j] = j;
+            else {
+                if (j > 0) {
+                var newValue = costs[j - 1];
+                if (s1.charAt(i - 1) != s2.charAt(j - 1))
+                    newValue = Math.min(Math.min(newValue, lastValue),
+                    costs[j]) + 1;
+                costs[j - 1] = lastValue;
+                lastValue = newValue;
+                }
+            }
+            }
+            if (i > 0)
+            costs[s2.length] = lastValue;
+        }
+        return costs[s2.length];
+    }
     document.getElementById('import-from-file').addEventListener('change', function () {
         var fr = new FileReader();
         fr.onload = function () {
@@ -497,23 +535,33 @@
         var node = new Object();
         node.id = in_nodes[i].id;
         node.label = in_nodes[i].label;
-            
-        if((transaction["time"] <= 2) && (in_nodes[i].label in bulletpoints)) {
-            var much = bulletpoints[in_nodes[i].label].length;
-            var future_title = "";
-            var counter = 0;
+        if(transaction["time"] <= 2){
+            var main_nodes = Object.keys(bulletpoints);
 
-            for(k = 0; k < much; k++){
-                line = decreaseLabelWidth(50, bulletpoints[in_nodes[i].label][k]);
-                future_title += ("-" + line + "\n");
-                counter = counter + 1;
-            } 
-            if(counter > 0){
-                node.title = future_title;
-                node.color = {background: "#FF0000"};
-                redNodes[node.id] = "";
+            for(j = 0; j<main_nodes.length; j++) {
+                if(similarity_f(in_nodes[i].label, main_nodes[j]) > 0.4) {
+                    //alert(in_nodes[i].label + main_nodes[j]);
+                    var much = bulletpoints[main_nodes[j]].length;
+                    var future_title = "";
+                    var counter = 0;
+
+                    for(k = 0; k < much; k++){
+                        var line = "";
+                        //line = decreaseLabelWidth(50, bulletpoints[main_nodes[j]][k]);
+                        line = bulletpoints[main_nodes[j]][k];
+                        future_title += ("-" + line + "\n");
+                        counter = counter + 1;
+                    } 
+                    if(counter > 0){
+                        node.title = future_title;
+                        node.color = {background: "#FF0000"};
+                        redNodes[node.id] = "";
+                    }
+                }
             }
-        }
+                
+
+        }   
     
         nodes.push(node);
     }
