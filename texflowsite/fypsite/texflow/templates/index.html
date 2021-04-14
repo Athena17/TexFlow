@@ -98,7 +98,7 @@
 
                 <button class = "button3" id = "revert"> Revert To Original Colors </button>
                 <button class = "button3" id = "merge-leaves"> Merge Leaves </button>
-                <button class = "button3" id = "make-ER"> Put Edges in Grey Nodes </button>
+                <button class = "button3" id = "make-ER"> Put Edges in Grey Nodes (Click again to get the original flowchart)</button>
 
                 
 
@@ -517,6 +517,7 @@
     
         nodes.push(node);
     }
+    
     nodes = new vis.DataSet(nodes);
 
 
@@ -544,6 +545,7 @@
         }
         graph[in_edges[i].to].push(in_edges[i].from); 
     }
+    
     edges = new vis.DataSet(edges);
     
     var container = document.getElementById('flowchart');
@@ -1171,14 +1173,28 @@
         return;
     }
 
+    edgesInGreyNodes = false;
+    
     let makeERButton = document.getElementById("make-ER");
     makeERButton.onclick = function(){
-        countE = 0;
-        edgesToAdd = [];
-        edgesToRemove = [];
-        nodesToAdd = [];
+        
+        if (! edgesInGreyNodes) {
+            putEdgesInGreyNodes()
+        }
+        else {
+            removeGreyNodes()
+        }
+        edgesInGreyNodes = ! edgesInGreyNodes; 
+    }
+
+    edgesToAdd = [];
+    edgesToRemove = [];
+    nodesToAdd = [];
+
+    function putEdgesInGreyNodes() {
+        
         for (edgeId in network.body.edges){
-            edgeLabel = network.body.edges[edgeId].options.label + " ";
+            edgeLabel = network.body.edges[edgeId].options.label;
             nodeFrom = network.body.edges[edgeId].options.from;
             nodeTo = network.body.edges[edgeId].options.to;
 
@@ -1191,8 +1207,8 @@
 
             edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
             edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
-            edgesToRemove.push({id: edgeId});
-            countE += 1
+            edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel});
+            
         }
 
         for (i = 0; i < nodesToAdd.length; i++){
@@ -1224,9 +1240,43 @@
             network.setOptions( {physics: false});
         },1000);
         network.fit();
-        
-        //edges = []
-        //data.edges = edges
-        //var network = new vis.Network(container, data, options);
     } 
+
+    function removeGreyNodes() {
+        
+        for (i=0; i < edgesToRemove.length; i++){
+            edges.add(edgesToRemove[i]);  
+        }
+        
+        for (i=0; i < edgesToAdd.length; i++){
+            edges.remove(edgesToAdd[i]);  
+        }
+
+        for (i = 0; i < nodesToAdd.length; i++){
+            nodes.remove(nodesToAdd[i]);
+        }
+
+        edgesToAdd = [];
+        edgesToRemove = [];
+        nodesToAdd = [];
+
+        network.setOptions( {physics: true});
+        network.setOptions( {layout:{hierarchical: true}});
+        network.fit();
+        
+        setTimeout(()=>{
+            network.setOptions({
+                layout:{
+                    hierarchical: false
+                },
+            });
+        },1000);
+    
+        setTimeout(()=>{
+            network.setOptions( {physics: false});
+        },1000);
+        network.fit();
+
+    } 
+    
 </script>
