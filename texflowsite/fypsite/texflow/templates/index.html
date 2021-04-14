@@ -657,15 +657,14 @@
             },
             */
             hierarchical: {
-                /*
+                
                 levelSeparation: 200,
                 nodeSpacing: 50,
                 treeSpacing: 100,
-                */
                 blockShifting: true,
                 edgeMinimization: true,
                 direction: "UD",
-                sortMethod: "directed",
+                sortMethod: "hubsize",
             },
         },
         physics: {
@@ -688,7 +687,7 @@
             font: {
                 size: 12,
                 color: '#00297A',
-                align: "middle",
+                align: "horizontal",
             },
             arrows:{
                 to: {
