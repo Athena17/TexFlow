@@ -74,14 +74,14 @@
             </div>
         </form>
 
+
         <div class = "flowchart-area">
             <label class = "label1"> Flowchart </label> <br> <br>
             <div id = "flowchart" class = "flowchart"> </div>
             <button class = "button1" id = "save-as-image"> Save As Image </button>
         </div>
-
-        <div class = "features">
-            <div class = "middle-feature">
+        
+        <div class = "right-features">
                 <!-- <button class = "button3" id="enable-physics"> Enable Physics</button>
                 <button class = "button3" id="disable-physics"> Disable Physics</button> -->
 
@@ -89,23 +89,26 @@
                     To highlight the path (representing the full relation) corresponding to 
                     an edge, select the edge and click on:
                 -->
-                <button class = "button3" id = "get-full-relation"> Highlight Full Path For Selected Edge </button>
+                <button class = "button3" 
+                title = "To highlight the path (representing the full relation)
+corresponding to an edge, select the edge before 
+clicking on this button."
+                id = "get-full-relation"> Highlight Full Path For Selected Edge </button>
 
                 <!--
-                    To highlight and print all paths between 2 entities, select them and click on:
+                    To highlight and print non-intersecting paths between 2 entities, select them and click on this button:
                 -->
-                <button class = "button3" id = "get-paths"> Highlight Non-Intersecting Paths Between 2 Selected Nodes </button>
+                <button class = "button3" 
+                title = "To highlight and print non-intersecting paths 
+between 2 entities, select them and click on this button."
+                id = "get-paths"> Highlight Non-Intersecting Paths Between 2 Selected Nodes </button>
 
                 <button class = "button3" id = "revert"> Revert To Original Colors </button>
-                <button class = "button3" id = "merge-leaves"> Merge Leaves </button>
+                <button class = "button3" id = "merge-leaves"> Merge Leaves (Click again to go back to original) </button>
                 <button class = "button3" id = "make-ER"> Put Edges in Grey Nodes (Click again to get the original flowchart)</button>
-
-                
-
-
-            </div>
-            
         </div>
+        
+    </div>
 </body>
 </html>
 
@@ -207,6 +210,14 @@
         margin-bottom: 3%;
         padding:0;
     }
+    .right-features{
+        /*background-color: aqua;*/
+        float: left;
+        width: 20%;
+        height: 100%;
+        margin-top: 5%;
+        margin-right: 10%;
+    }
     .feature{
         height: 36%;
        /* border: 2px solid #91acdf; */
@@ -307,6 +318,7 @@
         border: 2px solid #4a7cda; 
     }
     .button3{
+        float: top;
         font-family: Arial, Helvetica, sans-serif;
         font-size: 16px;
         font-weight: bold;
@@ -314,20 +326,23 @@
         color:#91acdf; 
         border: 2px solid #91acdf; 
         float:left;
-        width: 25%;
-        height: 60%;
-        margin-right: 4%;
-        margin-bottom: 1%;
-        margin-left: 4%;
+        width: 80%;
+        height: 10%;
+        margin-bottom: 10%;
+        margin-top: 5%;
+        margin-left: 20%;
         cursor:pointer;
     }
     .flowchart-area{
         position:relative;
+        float: left;
+        width: 60%;
         margin-left: 10%;
-        margin-right: 10%;
+        margin-right: 0%;
         margin-top: 1%;
         margin-bottom: 1%;
         padding:0;
+        /*background-color: blueviolet;*/
     }
     .flowchart{
         position:relative;
@@ -897,7 +912,9 @@
                     font: {multi: "html", size: 14},
                     label: 
                         "<b>" + parent[in_nodes[i].id] + "</b>" + "\n\n" + bullets[parent[in_nodes[i].id]],
-                    font: { color: "#eb2f87" }
+                    font: { color: "#eb2f87" },
+                    allowSingleNodeCluster: true
+
                 },
             }
             network.cluster(clusterOptionsByData);
@@ -906,15 +923,48 @@
     }
 
     let mergeLeavesButton = document.getElementById("merge-leaves");
+    let merged = false;
+
     mergeLeavesButton.onclick = function() {
         
-        network.setOptions({
-            layout:{
-                hierarchical: true
-            },
-        });
+        if (merged == true){
+            for (nodeId in network.body.nodes) {
+                if (network.isCluster(nodeId) === true) {
+                    network.openCluster(nodeId);
+                }
+            }
+            network.setOptions( {physics: true});
+            network.setOptions( {layout:{hierarchical: true}});
+            network.fit();
+            
+            setTimeout(()=>{
+                network.setOptions({
+                    layout:{
+                        hierarchical: false
+                    },
+                });
+            },1000);
+        
+            setTimeout(()=>{
+                network.setOptions( {physics: false});
+            },1000);
+            network.fit();
+            merged = false;
 
-        network.setOptions({ physics: true});
+            document.getElementById("get-paths").disabled = false; 
+            document.getElementById("get-full-relation").disabled = false; 
+            document.getElementById("make-ER").disabled = false; 
+            document.getElementById("revert").disabled = false; 
+
+            return;
+        }
+        merged = true;
+        
+        document.getElementById("get-paths").disabled = true; 
+        document.getElementById("get-full-relation").disabled = true; 
+        document.getElementById("make-ER").disabled = true; 
+        document.getElementById("revert").disabled = true; 
+
         leavesCount = 0
         for(i=0; i < in_nodes.length; i++){
             if (isLeaf(in_nodes[i].id)){
@@ -923,13 +973,22 @@
         }
         joinLeaves();
 
-        network.setOptions({
-            layout:{
-                hierarchical: false
-            },
-        });
-
-        network.setOptions({ physics: false});
+        network.setOptions( {physics: true});
+        network.setOptions( {layout:{hierarchical: true}});
+        network.fit();
+        
+        setTimeout(()=>{
+            network.setOptions({
+                layout:{
+                    hierarchical: false
+                },
+            });
+        },1000);
+    
+        setTimeout(()=>{
+            network.setOptions( {physics: false});
+        },1000);
+        network.fit();
     }
 
     selectedEdges = {};
@@ -1228,9 +1287,17 @@
         
         if (! edgesInGreyNodes) {
             putEdgesInGreyNodes()
+            document.getElementById("get-paths").disabled = true; 
+            document.getElementById("get-full-relation").disabled = true; 
+            document.getElementById("merge-leaves").disabled = true;
+            document.getElementById("revert").disabled = true;
         }
         else {
             removeGreyNodes()
+            document.getElementById("get-paths").disabled = false; 
+            document.getElementById("get-full-relation").disabled = false; 
+            document.getElementById("merge-leaves").disabled = false;
+            document.getElementById("revert").disabled = false;
         }
         edgesInGreyNodes = ! edgesInGreyNodes; 
     }
@@ -1243,6 +1310,9 @@
         
         for (edgeId in network.body.edges){
             edgeLabel = network.body.edges[edgeId].options.label;
+            if (edgeLabel.localeCompare("") == 0 || edgeLabel.localeCompare(" ") == 0 || typeof edgeLabel === 'undefined'){
+                continue;
+            }
             nodeFrom = network.body.edges[edgeId].options.from;
             nodeTo = network.body.edges[edgeId].options.to;
 
@@ -1255,7 +1325,7 @@
 
             edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
             edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
-            edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel});
+            edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel, smooth:{type:'discrete'}});
             
         }
 
