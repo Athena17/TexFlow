@@ -45,7 +45,6 @@ def index(request):
             gen = dumps(general) 
             
             (graph, bullet) = run_example(inputText, mainw)
-            #print(graph)
             nodes = {}
             for node in graph['nodes']:
                 nodeId = node.strip()

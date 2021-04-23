@@ -605,8 +605,7 @@ def full_example(parag):
 
     return flowchartGraph
 
-def run_example(parag, main_words):
-    
+def run_example(parag, main_words):  
     #paragraph = make_numbers_numeric(parag)
     paragraph = parag
     if len(main_words) == 0:
@@ -713,17 +712,17 @@ def run_example(parag, main_words):
                                 ent[i][j] = str(k)
                                 if(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB" and split_b != ""):
                                     ent[i][j+1] = split_b + ent[i][j+1]
-                                elif(split_b != ""):
+                                elif((split_b).strip() != ""):
                                     ent[i][j-1] = ent[i][j-1] + " _ " + split_b
                             elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
-                                if(split_a != ""):
+                                if((split_a).strip() != ""):
                                     ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
                                     ent[i][j] = str(k)
                                 else:
                                     ent[i][j+1] = split_b + ent[i][j+1]
                                     ent[i][j] = str(k)
                             break    
-
+                        
     for i in range(len(ent)):
         for j in range(len(ent[i])):                        
             if(enttype[i][j] == "VERB"):

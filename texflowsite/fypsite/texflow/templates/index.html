@@ -520,6 +520,30 @@ between 2 entities, select them and click on this button."
     
     if(transaction["time"] <= 2) {
         bulletpoints = JSON.parse("{{bullets|escapejs}}");
+        mainlist = Object.keys(bulletpoints);
+        
+        for(var x  in mainlist){
+            startvalue = in_nodes.length;
+            var match = 0;
+            for(var y in in_nodes){
+                
+                if(similarity_f(mainlist[x], in_nodes[y].label) > 0.4){
+                    match = 1;
+                }
+                
+            }
+            if(match == 0){
+                var node = new Object();
+                node.id = startvalue;
+                startvalue = startvalue + 1;
+                node.label = mainlist[x];
+                in_nodes.push(node);
+            }
+            
+
+        }
+        
+        
     }
     
     function decreaseLabelWidth(maxWidth, l){
@@ -564,7 +588,7 @@ between 2 entities, select them and click on this button."
 
                     for(k = 0; k < much; k++){
                         var line = "";
-                        line = decreaseLabelWidth(50, bulletpoints[main_nodes[j]][k]);
+                        line = decreaseLabelWidth(100, bulletpoints[main_nodes[j]][k]);
                         //line = bulletpoints[main_nodes[j]][k];
                         future_title += ("-" + line + "\n");
                         counter = counter + 1;
