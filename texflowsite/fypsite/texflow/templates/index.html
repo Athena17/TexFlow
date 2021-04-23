@@ -77,6 +77,8 @@
 
         <div class = "flowchart-area">
             <label class = "label1"> Flowchart </label> <br> <br>
+            <label class = "description-label"> In the edge label '^' represents the source node and '_' represents the destination node, and they should be interpreted as the labels of the corresponding nodes.
+                You may also hover on red nodes for more details. </label> <br> <br> 
             <div id = "flowchart" class = "flowchart"> </div>
             <button class = "button1" id = "save-as-image"> Save As Image </button>
         </div>
@@ -215,7 +217,7 @@ between 2 entities, select them and click on this button."
         float: left;
         width: 20%;
         height: 100%;
-        margin-top: 5%;
+        margin-top: 8.5%;
         margin-right: 10%;
     }
     .feature{
@@ -530,16 +532,16 @@ between 2 entities, select them and click on this button."
         
         newLabel = wordsList[0];
         var charCount = newLabel.length;
-        for (j = 1; j < wordsList.length; j++){
+        for (d_j = 1; d_j < wordsList.length; d_j++){
 
-            if ( (charCount + wordsList[j].length) > maxWidth) {
-                newLabel += ("\n" + wordsList[j]);
-                charCount = wordsList[j].length;
+            if ( (charCount + wordsList[d_j].length) > maxWidth) {
+                newLabel += ("\n" + wordsList[d_j]);
+                charCount = wordsList[d_j].length;
             }
             else {
-                newLabel += (" " + wordsList[j]);
+                newLabel += (" " + wordsList[d_j]);
                 charCount += 1;
-                charCount += wordsList[j].length;
+                charCount += wordsList[d_j].length;
             }
         }
         
@@ -562,8 +564,8 @@ between 2 entities, select them and click on this button."
 
                     for(k = 0; k < much; k++){
                         var line = "";
-                        //line = decreaseLabelWidth(50, bulletpoints[main_nodes[j]][k]);
-                        line = bulletpoints[main_nodes[j]][k];
+                        line = decreaseLabelWidth(50, bulletpoints[main_nodes[j]][k]);
+                        //line = bulletpoints[main_nodes[j]][k];
                         future_title += ("-" + line + "\n");
                         counter = counter + 1;
                     } 
