@@ -1307,26 +1307,25 @@ between 2 entities, select them and click on this button."
     nodesToAdd = [];
 
     function putEdgesInGreyNodes() {
-        
         for (edgeId in network.body.edges){
             edgeLabel = network.body.edges[edgeId].options.label;
-            if (edgeLabel.localeCompare("") == 0 || edgeLabel.localeCompare(" ") == 0 || typeof edgeLabel === 'undefined'){
-                continue;
+            if (typeof edgeLabel === 'undefined' || edgeLabel.localeCompare("") == 0 || edgeLabel.localeCompare(" ") == 0 ){
             }
-            nodeFrom = network.body.edges[edgeId].options.from;
-            nodeTo = network.body.edges[edgeId].options.to;
+            else {
+                nodeFrom = network.body.edges[edgeId].options.from;
+                nodeTo = network.body.edges[edgeId].options.to;
 
-            newNodeId = nodeFrom + "|" + nodeTo + "|" + edgeLabel + "|";
-            nodesToAdd.push({id: newNodeId, 
-            label: edgeLabel, 
-            shape: 'ellipse', 
-            color:{background:'#e8e8e8', border:'#e8e8e8'}, 
-            font:{color:'grey'}});
+                newNodeId = nodeFrom + "|" + nodeTo + "|" + edgeLabel + "|";
+                nodesToAdd.push({id: newNodeId, 
+                label: edgeLabel, 
+                shape: 'ellipse', 
+                color:{background:'#e8e8e8', border:'#e8e8e8'}, 
+                font:{color:'grey'}});
 
-            edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
-            edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
-            edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel, smooth:{type:'discrete'}});
-            
+                edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
+                edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
+                edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel, smooth:{type:'discrete'}});
+            }
         }
 
         for (i = 0; i < nodesToAdd.length; i++){
@@ -1358,7 +1357,7 @@ between 2 entities, select them and click on this button."
             network.setOptions( {physics: false});
         },1000);
         network.fit();
-    } 
+    }
 
     function removeGreyNodes() {
         
