@@ -12,7 +12,7 @@ from networkx.drawing.nx_agraph import to_agraph
 import random
 import math
 import numpy as np
-
+nltk.download('maxent_treebank_pos_tagger')
 #%% TRAVERSAL FUNCTION TO RECOGNIZE ENTITIES AND THEIR TYPES
 
 def traverse_tree(tree, ent, enttype):
@@ -477,11 +477,21 @@ def full_example(parag):
         """
     for s in range(len(global_text)):
         tokenized_by_word = preprocess(global_text[s]) #Tokenize by word
-        tagged_sentence = nltk.pos_tag(tokenized_by_word) #Tag each word
-   
+        tagger = nltk.data.load('taggers/maxent_treebank_pos_tagger/english.pickle')
+        tagged_sentence = tagger.tag(tokenized_by_word)
+        # = nltk.pos_tag(tokenized_by_word) #Tag each word
+# =============================================================================
+#         tagged_sentence = []
+#         tokenized_sent = " "
+#         tokenized_sent= tokenized_sent.join(tokenized_by_word)
+#         doc2 = nlp(tokenized_sent)
+#         for i in range(len(doc2)):
+#             tagged_sentence.append((str(doc2[i]), str(doc2[i].tag_)))
+#         
+# =============================================================================
         cp = nltk.RegexpParser(newgrammar)
         chunked_sentence = cp.parse(tagged_sentence)
-        #print(chunked_sentence)
+        print(chunked_sentence)
         
         traverse_tree(chunked_sentence, ent, enttype)
 
@@ -501,7 +511,7 @@ def full_example(parag):
                                 elif(split_b != ""):
                                     ent[i][j-1] = ent[i][j-1] + " _ " + split_b
                             elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
-                                if(split_a != ""):
+                                if(split_a.strip() != ""):
                                     ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
                                     ent[i][j] = str(k)
                                 else:
@@ -691,11 +701,13 @@ def run_example(parag, main_words):
         """
     for s in range(len(global_text)):
         tokenized_by_word = preprocess(global_text[s]) #Tokenize by word
-        tagged_sentence = nltk.pos_tag(tokenized_by_word) #Tag each word
+        tagger = nltk.data.load('taggers/maxent_treebank_pos_tagger/english.pickle')
+        tagged_sentence = tagger.tag(tokenized_by_word)
+        #tagged_sentence = nltk.pos_tag(tokenized_by_word) #Tag each word
    
         cp = nltk.RegexpParser(newgrammar)
         chunked_sentence = cp.parse(tagged_sentence)
-        #print(chunked_sentence)
+        print(chunked_sentence)
         
         traverse_tree(chunked_sentence, ent, enttype)
 
