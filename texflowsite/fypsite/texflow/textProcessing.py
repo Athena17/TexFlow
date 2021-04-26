@@ -691,8 +691,10 @@ def run_example(parag, main_words):
     newgrammar = """
         NP1:{(<PDT|DT|PRP.*|CD|JJ.*|RBS|RB>*<NN.*|JJ.*|CD|PRP.*>+<POS>?<CD|JJ.*|NN.*|PRP.*>*<VBN>?(<CC>?<RB>*<RBR>)*)|(<DT|PRP>)}
         VP: {<MD>?<RB>?<VB.*>+<RP>?<RB>?<VB.*>*(<CC><MD>?<RB>?<VB.*>+<RP>?<RB>?)*}
-        NP2: {<NP1><RB>*(<CC>(<IN>*<NP1>+)+<RB>*<VP>?)*}
-        }<CC>(<IN>*<NP1>+)+<RB>*<VP>{
+        NP2: {<VP>?<NP1><RB>*(<CC><IN>*<NP1>)+<RB>*<VP>?}
+        }<VP><NP1><RB>*(<CC><IN>*<NP1>)+<RB>*<VP>{
+        }<VP>{
+        }<RB>{
         WHCLAUSE: {<IN>?<WDT|WP.*|WRB><NP2|NP1>?<VP>+<NP2|NP1|JJ.*>?}
         NP: {(<TO><NP2|NP1>)|(<TO>+<VP>(<CC><TO>+<VP>)*)|(<NP2|NP1>(<IN>+<NP2|NP1>)+<WHCLAUSE>?)|(<RBR><NP2|NP1>(<IN><NP2|NP1><VP>?)?)|(<NP2|NP1>?<WHCLAUSE>?)}
         BIGP: {(<NP>|(<IN>+<NP>))+}
