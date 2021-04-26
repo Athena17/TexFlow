@@ -912,11 +912,11 @@ between 2 entities, select them and click on this button."
                 
                 line = ""
                 if (k1 in relations){
-                    line += ( parent[in_nodes[i].id]+ " " + relations[k1] + " " + in_nodes[i].id) + "\n";
+                    line += ( "(<i>" + parent[in_nodes[i].id]+ "</i>) " +  relations[k1] +  " (<i>" + in_nodes[i].id) + "</i>)\n";
                 }
 
                 if (k2 in relations){
-                    line += ( in_nodes[i].id + " " + relations[k2] + " " + parent[in_nodes[i].id]) + "\n";
+                    line += ( "(<i>" + in_nodes[i].id + "</i>) " + relations[k2]  + " (<i>" + parent[in_nodes[i].id]) + "</i>)\n";
                 }
                 
                 bullets[parent[in_nodes[i].id]] = bullets[parent[in_nodes[i].id]] + line;
@@ -939,7 +939,6 @@ between 2 entities, select them and click on this button."
                     label: 
                         "<b>" + parent[in_nodes[i].id] + "</b>" + "\n\n" + bullets[parent[in_nodes[i].id]],
                     font: { color: "#eb2f87" },
-                    allowSingleNodeCluster: true
 
                 },
             }
