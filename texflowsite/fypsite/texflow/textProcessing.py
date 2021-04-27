@@ -368,6 +368,8 @@ def find_main_words(paragraph):
 
     #we need to take the common_expressions and make them in a list
     common_exp_merged = []
+    print(common_exp)
+    print(doc1.ents)
     for i in range(len(common_exp)):
             if(type(common_exp[i][0]) == tuple):
                 for j in range(len(common_exp[i][0])):
@@ -501,8 +503,26 @@ def full_example(parag):
             if(enttype[i][j] == "BIGP"):
                 for k in common_exp_merged:
                     if(cosine_similarity(str(k), ent[i][j]) > 0.01):
-                        if(len(ent[i][j].split(str(k),1)) > 1):
+                        if(len(ent[i][j].split(str(k),1)) > 1) :
+                            #print(ent[i][j], str(k))
                             split_a,split_b = ent[i][j].split(str(k),1)
+                            if(j>0 and enttype[i][j-1] == "VERB"):
+                                ent[i][j-1] = ent[i][j-1] + split_a 
+                                ent[i][j] = str(k)
+                                if(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB" and split_b != ""):
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                elif(split_b != ""):
+                                    ent[i][j-1] = ent[i][j-1] + " _ " + split_b
+                            elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
+                                if(split_a.strip() != ""):
+                                    ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                                else:
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                            break  
+                        elif(len(ent[i][j].split(str(k).lower(),1)) > 1):
+                            split_a,split_b = ent[i][j].split(str(k).lower(),1)
                             if(j>0 and enttype[i][j-1] == "VERB"):
                                 ent[i][j-1] = ent[i][j-1] + split_a 
                                 ent[i][j] = str(k)
@@ -540,7 +560,15 @@ def full_example(parag):
                             ent[i].insert(j+1, split_b)
                             enttype[i].insert(j+1, "BIGP")
                             ent[i].insert(j+1, str(k))
-                            ent[i][j] = split_a                                   
+                            ent[i][j] = split_a
+                    elif(len(ent[i][j].split(str(k).lower(),1)) > 1):
+                        if(cosine_similarity(str(k), ent[i][j]) > 0.01):
+                            split_a, split_b = ent[i][j].split(str(k).lower(),1)
+                            enttype[i].insert(j+1, "VERB")
+                            ent[i].insert(j+1, split_b)
+                            enttype[i].insert(j+1, "BIGP")
+                            ent[i].insert(j+1, str(k))
+                            ent[i][j] = split_a                                       
 
     for i in range(len(ent)):
         for j in range(len(ent[i])):
@@ -709,34 +737,51 @@ def run_example(parag, main_words):
    
         cp = nltk.RegexpParser(newgrammar)
         chunked_sentence = cp.parse(tagged_sentence)
-        print(chunked_sentence)
+        #print(chunked_sentence)
         
         traverse_tree(chunked_sentence, ent, enttype)
-
 
     for i in range(len(ent)):
         for j in range(len(ent[i])):
             if(enttype[i][j] == "BIGP"):
                 for k in common_exp_merged:
                     if(cosine_similarity(str(k), ent[i][j]) > 0.01):
-                        if(len(ent[i][j].split(str(k),1)) > 1):
+                        if(len(ent[i][j].split(str(k),1)) > 1) :
+                            #print(ent[i][j], str(k))
                             split_a,split_b = ent[i][j].split(str(k),1)
                             if(j>0 and enttype[i][j-1] == "VERB"):
                                 ent[i][j-1] = ent[i][j-1] + split_a 
                                 ent[i][j] = str(k)
                                 if(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB" and split_b != ""):
                                     ent[i][j+1] = split_b + ent[i][j+1]
-                                elif((split_b).strip() != ""):
+                                elif(split_b != ""):
                                     ent[i][j-1] = ent[i][j-1] + " _ " + split_b
                             elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
-                                if((split_a).strip() != ""):
+                                if(split_a.strip() != ""):
+                                    ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                                else:
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                    ent[i][j] = str(k)
+                            break  
+                        elif(len(ent[i][j].split(str(k).lower(),1)) > 1):
+                            split_a,split_b = ent[i][j].split(str(k).lower(),1)
+                            if(j>0 and enttype[i][j-1] == "VERB"):
+                                ent[i][j-1] = ent[i][j-1] + split_a 
+                                ent[i][j] = str(k)
+                                if(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB" and split_b != ""):
+                                    ent[i][j+1] = split_b + ent[i][j+1]
+                                elif(split_b != ""):
+                                    ent[i][j-1] = ent[i][j-1] + " _ " + split_b
+                            elif(j+1 < len(ent[i]) and enttype[i][j+1] == "VERB"):
+                                if(split_a.strip() != ""):
                                     ent[i][j+1] = split_a + " ^ " + split_b + ent[i][j+1]
                                     ent[i][j] = str(k)
                                 else:
                                     ent[i][j+1] = split_b + ent[i][j+1]
                                     ent[i][j] = str(k)
                             break    
-                        
+
     for i in range(len(ent)):
         for j in range(len(ent[i])):                        
             if(enttype[i][j] == "VERB"):
@@ -758,7 +803,15 @@ def run_example(parag, main_words):
                             ent[i].insert(j+1, split_b)
                             enttype[i].insert(j+1, "BIGP")
                             ent[i].insert(j+1, str(k))
-                            ent[i][j] = split_a                                   
+                            ent[i][j] = split_a
+                    elif(len(ent[i][j].split(str(k).lower(),1)) > 1):
+                        if(cosine_similarity(str(k), ent[i][j]) > 0.01):
+                            split_a, split_b = ent[i][j].split(str(k).lower(),1)
+                            enttype[i].insert(j+1, "VERB")
+                            ent[i].insert(j+1, split_b)
+                            enttype[i].insert(j+1, "BIGP")
+                            ent[i].insert(j+1, str(k))
+                            ent[i][j] = split_a                                       
 
     for i in range(len(ent)):
         for j in range(len(ent[i])):
