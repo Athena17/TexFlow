@@ -1084,9 +1084,70 @@ between 2 entities, select them and click on this button."
     changedEdges = [];
 
     let getFullRealtionButton = document.getElementById("get-full-relation");
-    getFullRealtionButton.onclick = function(){
+    pathsGrey = {}
+    parentPathGrey = {}
+    function getfullrelgrey(greyNodeId){
         
-        if(selectedEdgesCount == 0) {
+        edgeId = network.getConnectedEdges(greyNodeId)[0];
+        parPath = parentPathGrey[edgeId];
+        nodeFromSel = network.body.edges[edgeId].options.from.toString();
+        nodeToSel = network.body.edges[edgeId].options.to.toString();
+
+        newColor = '#c400b4';
+        newFontColor = '#8c0081';
+        newBackColor = '#ffc7fb';
+        if(network.body.edges[edgeId].options.color.color === newColor) {
+            return;
+        } 
+            
+        edges.update({id: edgeId, color:{color:newColor}, font: { color: newFontColor }});
+        changedEdges.push(edgeId);
+
+        nodes.update({id: nodeFromSel, color:{border:newColor, background: newBackColor}, font: { color: newFontColor  }});
+        changedNodes.push(nodeFromSel);
+
+        nodes.update({id: nodeToSel, color:{border:newColor, background: newBackColor}, font: {color: newFontColor  }});
+        changedNodes.push(nodeToSel);
+
+        for (i = 0 ; i < pathsGrey[parPath].length; i++) {
+            edge = (pathsGrey[parPath])[i];
+            nodeFrom = network.body.edges[edge].options.from.toString();
+            nodeTo = network.body.edges[edge].options.to.toString();
+
+            if (nodeFromSel.localeCompare(nodeFrom) === 0 && nodeToSel.localeCompare(nodeTo) === 0){
+                continue;
+            } 
+
+            edges.update({id: edge, color:{color:newColor}, font: { color: newFontColor}});
+            changedEdges.push(edge);
+
+            nodes.update({id: nodeFrom, color:{border:newColor, background: newBackColor}, font: { color: newFontColor }});
+            changedNodes.push(nodeFrom);
+
+            nodes.update({id: nodeTo, color:{border:newColor, background: newBackColor}, font: { color: newFontColor}});
+            changedNodes.push(nodeTo);
+        }
+    }
+
+    getFullRealtionButton.onclick = function(){
+        if (Object.keys(pathsGrey).length != 0) {
+            if (selectedNodesCount != 1) {
+                alert("Please select exactly one grey node before you click on this button.")
+            }
+            else {
+                greyNodeId = ""
+                for (node in selectedNodes){
+                    greyNodeId = node;
+                }
+                if (network.body.nodes[greyNodeId].options.color.background != '#e8e8e8'){
+                    alert("Please select exactly one grey node before you click on this button.")
+                }
+                else{
+                    getfullrelgrey(greyNodeId);
+                }
+            }
+        }
+        else if(selectedEdgesCount == 0) {
             alert("Please select an edge before you click on this button.")
         }
         else if (selectedEdgesCount == 1){
@@ -1275,14 +1336,27 @@ between 2 entities, select them and click on this button."
         originalBackColor = '#c4e5ff';
                 
         for (i = 0; i < nodesList.length; i++){
-            if (nodesList[i] in redNodes){
+            if (network.body.nodes[nodesList[i]].options.shape == 'ellipse'){
+                originalBackColor = '#e8e8e8';
+                originalColor = '#e8e8e8'; 
+                originalFontColor = 'grey';
+            }
+            else if (nodesList[i] in redNodes){
                 originalBackColor = '#FF0000';
+                originalColor = '#6ebfff';
+                originalFontColor = '#00297A';
             }
             else {
                 originalBackColor = '#c4e5ff';
+                originalColor = '#6ebfff';
+                originalFontColor = '#00297A';
             }
             nodes.update({id: nodesList[i], color:{border:originalColor, background: originalBackColor}, font: { color: originalFontColor, bold: false}});
         }
+
+        originalColor = '#6ebfff';
+        originalFontColor = '#00297A';
+        originalBackColor = '#c4e5ff';
 
         for (i = 0; i < edgesList.length; i++){
             edges.update({id: edgesList[i], color:{color:originalColor}, font: { color: originalFontColor}});
@@ -1313,16 +1387,17 @@ between 2 entities, select them and click on this button."
         if (! edgesInGreyNodes) {
             putEdgesInGreyNodes()
             document.getElementById("get-paths").disabled = true; 
-            document.getElementById("get-full-relation").disabled = true; 
+            //document.getElementById("get-full-relation").disabled = true; 
             document.getElementById("merge-leaves").disabled = true;
-            document.getElementById("revert").disabled = true;
+            //document.getElementById("revert").disabled = true;
         }
         else {
+            revertToOriginalColors(changedNodes, changedEdges);
             removeGreyNodes()
             document.getElementById("get-paths").disabled = false; 
-            document.getElementById("get-full-relation").disabled = false; 
+            //document.getElementById("get-full-relation").disabled = false; 
             document.getElementById("merge-leaves").disabled = false;
-            document.getElementById("revert").disabled = false;
+            //document.getElementById("revert").disabled = false;
         }
         edgesInGreyNodes = ! edgesInGreyNodes; 
     }
@@ -1347,8 +1422,12 @@ between 2 entities, select them and click on this button."
                 color:{background:'#e8e8e8', border:'#e8e8e8'}, 
                 font:{color:'grey'}});
 
-                edgesToAdd.push({from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
-                edgesToAdd.push({from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
+                edgesToAdd.push({id: nodeFrom + "|" + newNodeId, from: nodeFrom, to: newNodeId, smooth:{type:'discrete'}});
+                edgesToAdd.push({id: newNodeId + "|" + nodeTo, from: newNodeId, to: nodeTo, smooth:{type:'discrete'}});
+                // CHANGE
+                parentPathGrey[nodeFrom + "|" + newNodeId] = parentPath[edgeId];
+                parentPathGrey[newNodeId + "|" + nodeTo] = parentPath[edgeId];
+                // END OF CHANGE
                 edgesToRemove.push({id: edgeId, from: nodeFrom, to: nodeTo, label: edgeLabel, smooth:{type:'discrete'}});
             }
         }
@@ -1365,6 +1444,14 @@ between 2 entities, select them and click on this button."
             edges.add(edgesToAdd[i]);  
         }
 
+        for (greyNode in parentPathGrey) {
+            if (parentPathGrey[greyNode] in pathsGrey){
+                pathsGrey[parentPathGrey[greyNode]].push(greyNode);
+            }
+            else {
+                pathsGrey[parentPathGrey[greyNode]] = [greyNode];
+            }
+        }
         
         network.setOptions( {physics: true});
         network.setOptions( {layout:{hierarchical: true}});
@@ -1385,7 +1472,8 @@ between 2 entities, select them and click on this button."
     }
 
     function removeGreyNodes() {
-        
+        parentPathGrey = {}
+        pathsGrey = {}
         for (i=0; i < edgesToRemove.length; i++){
             edges.add(edgesToRemove[i]);  
         }
